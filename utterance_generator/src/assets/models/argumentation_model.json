@@ -1,0 +1,16 @@
+{
+	"rules": {
+		"r1": "content(Content,MoveName) => available_move_type(MoveName)",
+		"r2": "move_style(Type), is_move_style(MoveName, Type), available_move_type(MoveName) => choose_move_type(MoveName)",
+		"r3": "content(Content,MoveName), choose_move_type(MoveName) => choose_content(Content)",
+		"r4": "used_content(Content,MoveName) -> ~content(Content,MoveName)"
+	},
+
+	"contrariness": ["choose_content(Content1)-choose_content(Content2)",
+		"choose_move_type(Content1)-choose_move_type(Content2)"
+	],
+
+  "rule_preferences": ["[r2] < [r2]",
+		"[r3] < [r3]"
+	]
+}

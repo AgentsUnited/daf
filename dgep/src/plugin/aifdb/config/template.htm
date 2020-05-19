@@ -1,0 +1,64 @@
+<h2>AIFdb plugin</h2>
+
+<script type="text/javascript">
+
+var add_new_move_template = function(){
+  display_overlay('blank', 'content', function(overlay, content){
+      var txt = $("<textarea />", {
+        id: "txt_template"
+      }).css("font-size","14px").css("height","200px").css("width","100%");
+
+      var name = $("<input />", {
+        id: "txt_name"
+      });
+
+      var btn = $("<button />", {
+        id: "add_template_btn"
+      }).html("Add").click(function(){
+        update_plugin('aifdb', {cmd:'new_template', params:{name: $("#txt_name").val(), content: $('#txt_template').val()}}, function(data){
+          console.log(data);
+        });
+      });
+
+      content.append(txt).append("Move Name: ").append(name).append('<br />').append(btn);
+  });
+};
+
+var list_move_templates = function(){
+  display_overlay('blank', 'content', function(overlay, content){
+    get_from_plugin('aifdb','templates', function(data){
+      var templates = eval('(' + data + ')');
+      for(var i=0;i<templates.templates.length;i++){
+          (function(i){
+            var move = templates.templates[i];
+            var btn = $("<button />").html("Edit").click(function(){
+              display_overlay('blank', overlay.attr('id'),function(overlay2, content2){
+                var t = JSON.parse(move.template.trim());
+                var txt = $("<textarea />",{class:"line_nums"}).css("height","200px").css("width","100%").html(JSON.stringify(t, null, '\t'));
+                var btn_save = $("<button />").html("Save").click(function(){
+                  var update_data = Object();
+                  var data = Object();
+                  data.name = move.name;
+                  data.content = JSON.parse(txt.val());
+
+                  update_data.params = data;
+                  update_data.cmd = "update_template";
+                  move.template = txt.val();
+
+                  update_plugin('aifdb', update_data, function(data){
+                    overlay2.remove();
+                  });
+                });
+                content2.append(txt).append('<br />').append(btn_save);
+              });
+            });
+            content.append(move.name).append(' ').append(btn).append('<br />');
+          })(i);
+      }
+    });
+  });
+};
+</script>
+
+<button onclick="add_new_move_template();" style="height:50px;font-size:14px;cursor:pointer;">Add a new move template</button><br />
+<button onclick="list_move_templates();" style="height:50px; font-size:14px;cursor:pointer;">List move templates</button>

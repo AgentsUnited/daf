@@ -1,0 +1,30 @@
+{
+  "incoming": [
+    {
+      "from": "DGEP/requests",
+      "to": [
+        "FILSTANTIATOR/requests"
+      ]
+    },
+    {
+      "from": "COUCH/USER/AUTHENTICATION",
+      "to": [
+        "FILSTANTIATOR/auth"
+      ]
+    }
+  ],
+  "outgoing": [
+    {
+      "from": "FILSTANTIATOR/response",
+      "to": [
+        "DGEP/response"
+      ]
+    },
+    {
+      "from": "FILSTANTIATOR/dialogue_moves",
+      "to": [
+        "DGEP/moves"
+      ]
+    }
+  ]
+}

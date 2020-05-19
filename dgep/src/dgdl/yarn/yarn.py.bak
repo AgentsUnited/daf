@@ -1,0 +1,233 @@
+import json
+import re
+import os
+
+class Yarn:
+
+    def __init__(self):
+        self.yarnfile_dir = os.getcwd() + "/src/assets/protocols/yarnfiles"
+        self.dgdl_dir = os.getcwd() + "/src/assets/protocols/"
+
+    def convert_to_dgdl(self, yarnfile, user_name="User"):
+        protocolName = 'Yarn' + yarnfile
+
+        with open(self.yarnfile_dir + '/' + yarnfile + '.json', 'rb') as yarn_file:
+            yarn_data_str = yarn_file.read().decode("utf-8"); yarn_data = json.loads(yarn_data_str)
+            players = [user_name]
+            interactions = {}
+            titles = []
+            incoming = []
+            groupings = {}
+
+            i = 1
+
+            response_text_map = {}
+
+            for yarn_node in yarn_data:
+                title = yarn_node['title'].replace(' ', '').capitalize()
+                body = yarn_node['body']
+                titles.append(title)
+
+                speaker = self.get_speaker(body)
+
+                if speaker not in players:
+                    players.append(speaker)
+
+                interactions[title] = {}
+                interactions[title]['speaker'] = speaker
+                interactions[title]['effects'] = []
+                interactions[title]['opener'] = self.get_clean_body_text(body, speaker)
+                interactions[title]['addressee'] = user_name
+
+                user_response = self.get_user_response_text(body)
+
+                for response in user_response:
+                    response_and_next = response.split('|')
+
+                    user_response_text = response_and_next[0]
+
+                    if user_response_text == '':
+                        #user doesn't do anything
+                        interactions[title]['effects'].append(response_and_next[1])
+                        incoming.append(response_and_next[1])
+                    else:
+                        user_response_text = self.process_response_text(user_response_text)
+                        user_response_name = 'tmp_UserResponse' + str(i)
+                        i = i + 1
+
+                        response_text_map[user_response_text] = user_response_name
+                        next_move = response_and_next[1]
+
+                        if user_response_text == '':
+                            user_response_text = '<Say Nothing>'
+
+                        if next_move in groupings.keys():
+                            groupings[next_move].append(user_response_name)
+                        else:
+                            groupings[next_move] = [user_response_name]
+
+                        interactions[title]['effects'].append(user_response_name)
+                        #incoming.append(user_response_name)
+                        interactions[user_response_name] = {}
+                        interactions[user_response_name]['speaker'] = user_name
+                        interactions[user_response_name]['effects'] = [next_move]
+                        interactions[user_response_name]['opener'] = response_and_next[0]
+                        interactions[user_response_name]['addressee'] = ''
+                        incoming.append(next_move)
+
+            mappings = {}
+
+            i = 1
+
+            for key, group in groupings.items():
+                for g in group:
+                    mappings[g] = 'UserResponse' + str(i)
+
+                i = i + 1
+
+            for oldValue, newValue in mappings.items():
+                interactions[newValue] = interactions[oldValue]
+                interactions.pop(oldValue, None)
+
+            for name, interaction in interactions.items():
+                effects = interaction['effects']
+                newEffects = []
+
+                for effect in effects:
+                    if effect in mappings.keys():
+                        newEffects.append(mappings[effect])
+                    else:
+                        newEffects.append(effect)
+
+                interactions[name]['effects'] = newEffects
+
+            initial = list(set(titles) - set(incoming))[0]
+            initialInteraction = interactions[initial]
+            initialSpeaker = initialInteraction['speaker']
+
+            if initialInteraction['addressee'] != '':
+                addressee = ', $' + initialInteraction['addressee'] + ', '
+            else:
+                addressee = ', '
+
+            initialMove = 'move(add, next, ' + initial + addressee + initialSpeaker + ')'
+
+            initialRule = u'''rule{{id:StartingRule, scope:initial,
+            \t\t{{
+            \t\tassign({initialSpeaker}, speaker)
+            \t\t& {initialMove}
+            }}}} '''.format(initialSpeaker=initialSpeaker, initialMove=initialMove)
+
+            theInteractions = []
+
+            for name, interaction in interactions.items():
+                opener = interaction['opener'].replace('"', '').strip()
+                effects = []
+
+                if interaction['addressee'] != '':
+                    addressee = ', $' + interaction['addressee'] + ', '
+                else:
+                    addressee = ', '
+
+                effect_person = ''
+
+                for effect in interaction['effects']:
+                    if effect in interactions.keys():
+                        effect_person = interactions[effect]['speaker']
+                        effects.append('move(add, next, ' + effect + ', ' + effect_person +')')
+
+                if effects:
+                    effects = "\n\t\t\t& ".join(effects)
+                else:
+                    effects = 'status(terminate, ' + protocolName + ')'
+
+
+                i = u'''\tinteraction{{{name}{addressee}"{opener}",
+                \t\t{{
+                \t\t\t{effects}
+                \t\t}}
+                \t}}'''.format(name=name, addressee=addressee,opener=opener,effects=effects)
+
+                theInteractions.append(i)
+
+            theInteractions = "\n".join(theInteractions)
+
+            playerSpec = []
+
+            for player in players:
+                playerSpec.append('player{id:' + player + '}')
+
+            playerSpec = "\n\t".join(playerSpec)
+            roles = 'roles{' + ",".join(players) + '}'
+
+            dgdl = u'''System{{{protocolName}{{
+\tturns{{magnitude:multiple, ordering:liberal}}
+\t{roles}
+\tplayers{{min:2, max:2}}
+\t{playerSpec}
+
+\tbacktrack{{on}}
+
+\t/* -- RULES -- */
+\t{initialRule}
+
+\t/* -- INTERACTIONS */
+{theInteractions}
+}}}}'''.format(protocolName=protocolName,roles=roles,playerSpec=playerSpec,initialRule=initialRule,theInteractions=theInteractions)
+
+            dgdl_file = open(self.dgdl_dir + '/' + protocolName + '.dgdl', 'w')
+            dgdl_file.write(dgdl.encode('utf-8').strip())
+
+            return protocolName
+
+    def get_speaker(self, body_text):
+        regex = r"[>]*([A-Z][^ >.]+):"
+        matches = re.finditer(regex, body_text, re.MULTILINE)
+
+        group = ''
+
+        for matchNum, match in enumerate(matches):
+            matchNum = matchNum + 1
+
+            for groupNum in range(0, len(match.groups())):
+                groupNum = groupNum + 1
+                group = match.group(groupNum)
+
+        return group
+
+    def get_clean_body_text(self, body_text, name):
+        regex = r"" + name + ":([^\[\]]+)\[\["
+
+        matches = re.finditer(regex, body_text, re.MULTILINE)
+
+        group = ''
+
+        for matchNum, match in enumerate(matches):
+            matchNum = matchNum + 1
+
+            for groupNum in range(0, len(match.groups())):
+                groupNum = groupNum + 1
+                group = match.group(groupNum)
+
+        return group
+
+    def get_user_response_text(self, body_text):
+        m = []
+
+        regex = r"\[\[([^\[\]]+)\]\]"
+
+        matches = re.finditer(regex, body_text, re.MULTILINE)
+
+        for matchNum, match in enumerate(matches):
+            matchNum = matchNum + 1
+
+            m.append(match.group(1))
+
+        return m
+
+    def process_response_text(self, text):
+        symbols = [","," ",";",".","!",".","'","?"]
+        for s in symbols:
+            text = text.replace(s, '')
+
+        return text

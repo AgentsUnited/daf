@@ -1,0 +1,7 @@
+Propose{
+  aspic{[set_goal(?)]};
+}
+
+Explain{
+  aspic{[?]=>$p};
+}

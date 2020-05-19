@@ -1,0 +1,16 @@
+When a service is listed under "updates to" it will need rebuilt. To save rebuilding everything (which can take a while) you can run:
+
+docker-compose build <names>
+
+where <names> is the list of services to rebuild, e.g.
+
+docker-compose build dgep utterance_generator
+
+New updates will be listed at the top under the date the updates were committed to master. Be sure to build everything listed since your last build.
+
+===2020-04-24===
+
+Updates to:
+- dgep
+- utterance_generator
+- controller

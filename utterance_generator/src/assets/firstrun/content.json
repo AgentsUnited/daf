@@ -1,0 +1,63 @@
+[
+  {
+      "move_id" : "set_<<goal>>_goal",
+      "move_types" : [
+          "question",
+          "assert"
+      ],
+      "styles" : {
+          "question" : "socratic",
+          "assert" : "authoritative"
+      },
+      "text" : {
+          "question" : "Shall we set you a <<goal>> goal?",
+          "assert" : "We need to set you a <<goal>> goal"
+      },
+      "values" : [
+          "goal_setting+",
+          "intro+"
+      ],
+      "preconditions" : []
+  },
+  {
+      "move_id" : "propose_<<goal>>_goal{$<<goal>>Goal}",
+      "move_types" : [
+          "question",
+          "assert"
+      ],
+      "styles" : {
+          "question" : "socratic",
+          "assert" : "authoritative"
+      },
+      "text" : {
+          "question" : "How about a <<goal>> goal of $<<goal>>Goal?",
+          "assert" : "We should set you a <<goal>> goal of $<<goal>>Goal"
+      },
+      "values" : [
+          "goal_setting+",
+          "direct+"
+      ],
+      "preconditions" : []
+  },
+
+  {
+    "move_id" : "set_<<goal>>_goal",
+    "move_types" : [
+        "question",
+        "assert"
+    ],
+    "styles" : {
+        "question" : "socratic",
+        "assert" : "authoritative"
+    },
+    "text" : {
+        "question" : "Shall we set you a <<goal>> goal?",
+        "assert" : "We need to set you a <<goal>> goal"
+    },
+    "values" : [
+        "goal_setting+"
+    ],
+    "preconditions" : []
+}
+
+]

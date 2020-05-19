@@ -1,0 +1,29 @@
+{
+		"protocol": "GoalSettingNew",
+		"participants": [{
+			"name": "Alexa",
+			"player": "Agent"
+		}, {
+			"name": "Alice",
+			"player": "User"
+		},{
+			"name": "Francois",
+			"player": "Agent"
+		}],
+		"filstantiator": [{
+			"participant": "Alexa",
+			"parameters": {
+				"content_mandatory_values": ["goal_setting+", "physical_activity+"],
+				"content_preferences": "direct+ < intro+",
+				"move_style_preferences": "authoritative < socratic"
+			}
+		}, {
+			"participant": "Francois",
+			"parameters": {
+				"content_mandatory_values": ["goal_setting+", "nutrition+"],
+				"content_preferences": "intro+ < direct+",
+				"move_style_preferences": "socratic < authoritative"
+			}
+		}],
+		"authToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtc25haXRoQGR1bmRlZS5hYy51ayIsImlhdCI6MTU3MzgxMTYxMiwiZXhwIjoxNTczODk4MDEyLCJoYXNoIjoidnNsNjBubnFtdUh5YkdJeGl1M0JERjVEM1Y4c0xQREJrY2d3SkdFdW1TOD0ifQ.GgjxkmRQPoBnel4xPcbQLtVuMYFxwt-gIvuqwx3kBbqpGpu0Xwx7NJ4r9_Xcd5I8G4vizHM5u7EC7Gg2p_94jw"
+	}

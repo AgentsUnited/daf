@@ -1,0 +1,15 @@
+DEFCon is a lightweight library for building structured dialogue frameworks. It
+provides the core of the Dialogue Game Execution Platform (DGEP) but exists
+as a separate module to allow for DGEP-like functionality to be embedded
+into applications without needing to rely on DGEP and the Dialogue Game
+Description Language (DGDL).
+
+Note that primary development focus is on DGEP and as such documentation for
+DEFcon is rather limited. For now, it primarily exists to ensure that the core
+functionality of DGEP remains separate from the outset so that, in time, there
+is the option and possibility of maintaining DEFCon as a project in its own
+right. We therefore currently encourage you to use DGEP, either as a standalone
+service or a module in itself.
+
+Nevertheless, if you are interested in using DEFcon on its own, feel free to get
+in touch.

@@ -1,0 +1,38 @@
+System{IntroExample{
+	/* Description: A game to test free variables */
+
+	turns{magnitude:multiple, ordering:liberal}
+	roles{Person}
+	players{min:2, max:2}
+	player{id:Agent, roles{Person}, max:1, min:1}
+	player{id:User, roles{Person}, max:1, min:1}
+
+	backtrack{on}
+
+  rule{id:StartingRule, scope:initial,
+    {
+        assign(Agent, speaker)
+        & move(add, next, Question, $User, Agent)
+    }
+  }
+
+  interaction{Question, $User, "What's your name?",
+    {
+      assign(User, speaker)
+      & move(add, next, GiveName, $Agent, {p}, User)
+    }
+  }
+
+  interaction{GiveName, $Agent, {p}, "{INPUT}",
+    {
+      assign(Agent, speaker)
+			& move(add, next, End, $User, {p}, Agent)
+    }
+  }
+
+	interaction{End, $User, {p}, "$p",
+		{
+			status(terminate, IntroExample)
+		}
+	}
+}}

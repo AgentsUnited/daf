@@ -1,0 +1,72 @@
+version: '2'
+
+# Core docker-compose file for the Dialogue and Argumentation Framework
+
+services:
+ #internal activemq service for communication between modules
+ activemq_internal:
+  image: webcenter/activemq:latest
+  container_name: activemq-internal
+  ports:
+  - "8161"
+
+ #external activemq service for outside communication
+ activemq_external:
+  image: webcenter/activemq:latest
+  container_name: activemq-external
+  ports:
+  - "8161:8161"
+  - "61613:61613"
+  - "61616:61616"
+  - "61614:61614"
+
+ #controller to map external to internal amq topics
+ controller:
+   build: ./daf-controller
+   container_name: daf_controller
+   depends_on:
+   - activemq_internal
+   - activemq_external
+   environment:
+   - INTERNAL_AMQ_HOST=activemq-internal
+   - EXTERNAL_AMQ_HOST=activemq-external
+
+ #dgep
+ dgep:
+  build: ./dgep
+  container_name: dgep
+
+ #filstantiator
+ utterance_generator:
+  build: ./utterance_generator
+  container_name: utterance_generator
+  depends_on:
+  - toast
+  env_file:
+  - ./utterance_generator/config.env
+
+ #toast: required by utterance_generator
+ toast:
+  build: ./toast
+  container_name: toast
+
+ #mongodb: required by utterance_generator
+ mongodb:
+  image: mongo
+  volumes:
+  #- ./mongo/data/db:/data/db
+   - mongo-volume:/data/db
+  ports:
+  - "27017:27017"
+  container_name: mongodb
+
+ #web-based demonstrator for the daf
+ dafdemo:
+  build: ./daf-demonstrator
+  ports:
+  - "8080:80"
+
+volumes:
+  mongo-volume:
+   external: false
+   driver: local

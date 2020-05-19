@@ -1,0 +1,18 @@
+[
+  {
+    "protocol": "GoalSetting",
+    "rules": [
+      "achievable(X)=>set_goal(X)",
+      "preferredgoal(X)=>achievable(X)",
+      "lowergoal(X)=>reasonable(X)",
+      "reasonable(X)=>set_goal(X)"
+    ],
+    "contrariness": [
+      "rejectedgoal(X)^set_goal(X)",
+      "set_goal(X)-set_goal(Y)"
+    ],
+    "preferences": [
+      "lowergoal(X) < preferredgoal(Y)"
+    ]
+  }
+]

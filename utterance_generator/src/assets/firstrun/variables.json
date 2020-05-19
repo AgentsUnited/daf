@@ -1,0 +1,18 @@
+[
+  {
+    "protocol": "GoalSetting",
+    "variables": {
+      "Confirm": {
+        "name": "agreedgoal",
+        "value": "$p",
+        "clear_on_new": true
+      },
+      "Reject": {
+        "name": "rejectedgoal",
+        "value": "$p",
+        "append": true,
+        "clear_on_new": true
+      }
+    }
+  }
+]
