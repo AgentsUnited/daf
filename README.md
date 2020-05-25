@@ -26,3 +26,10 @@ may see output in the terminal relating to a `ConnectionRefusedError`; this is n
 ### Edit coaching variables
 The interface to edit coaching variables is provided to allow dialogues to be tested independent of the Knowledge Base. For this
 demonstrator, coaching variables are expressed in a JSON object as key-value pairs.
+### Stopping
+Use ctrl+c to stop the DAF terminal and then the command `docker-compose down` to stop DAF from Docker.
+
+## Troubleshooting
+
+## License
+Dialogue and Argumentation Framework (DAF) is licensed under the GNU Lesser General Public License v3.0 (LGPL 3.0).
