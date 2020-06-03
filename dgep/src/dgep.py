@@ -31,6 +31,11 @@ class DGEP(DialogueManager):
 
         ''' Load saved dialogues '''
         dialogues_path = os.path.dirname(os.path.realpath(__file__)) + "/dialogues"
+
+        ''' Create the dialogues dir if it doesn't exist '''
+        if not os.path.exists(dialogues_path):
+            os.mkdir(dialogues_path)
+
         for f in os.listdir(dialogues_path):
             id = f.split('.')[0]
             p = pickle.load(open(dialogues_path + "/" + f, 'rb'))
@@ -140,7 +145,7 @@ class DGEP(DialogueManager):
 
         if self.dialogues[dialogueID - 1]:
             dialogue = self.dialogues[dialogueID - 1]
-            
+
             if dialogue.terminated:
                 status = "terminated"
             else:
