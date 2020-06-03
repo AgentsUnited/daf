@@ -7,7 +7,7 @@ var dgep_msg =
       filstantiator:[],
       authToken:"xyz",
       filstantiator: {},
-      username: "mark"
+      username: "test001@council-of-coaches.eu"
     }
   };
 
@@ -33,6 +33,7 @@ var amq = Object();
 amq.requests = "/topic/DGEP/requests";
 amq.moves = "/topic/DGEP/moves";
 amq.response = "/topic/DGEP/response";
+amq.auth = "/topic/COUCH/USER/AUTHENTICATION"
 
 /**
   Wrapper function that sends the message to the topic, listens for a response
@@ -230,6 +231,27 @@ var save_participants = function(){
 
 var page_load = function(){
   $(this).scrollTop(0);
+
+  /* Log in to the test skb and retreive the token */
+  $.ajax({
+    type: "POST",
+    url: "https://servletstest.rrdweb.nl/wool/v1/auth/login",
+    data: "{\"user\": \"test001@council-of-coaches.eu\", \"password\": \"beqewymoh\", \"tokenExpiration\": \"never\"}",
+    contentType: "application/json",
+    headers: {
+        "accept": "*/*"
+    },
+    success: function(data, status, jqXHR){
+      response = JSON.parse(jqXHR.responseText);
+      token = response.token;
+
+
+      amq.send(JSON.stringify({'cmd':'login', 'username':'test001@council-of-coaches.eu','authToken': token}), amq.auth, null, null);
+    },
+    error: function(jqXHR, status, error){
+      alert(jqXHR.responseText);
+    }
+  });
 
   /* Fix the width etc. of the title bar */
   $("#topbar").width($("#content").width() - 20);
