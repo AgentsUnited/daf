@@ -50,6 +50,14 @@ input{
   src: url(Comfortaa-Regular.ttf);
 }
 
+div{
+  font-family: Comfortaa,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+}
+
+input{
+  font-family: Comfortaa,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+}
+
 div#topbar{
   display:flex;
   align-items:center;
@@ -93,6 +101,39 @@ div#innercontent{
   margin-top:100px;
 }
 
+div.edit_container{
+  height: 500px;
+  width: 600px;
+  position: relative;
+  top: -100px;
+  padding:20px;
+  background-color: #7AC8CE;
+  border-radius: 25px;
+  -moz-box-shadow: 0 0 10px #000000;
+  -webkit-box-shadow: 0 0 10px #000000;
+  box-shadow: 0 0 10px #000000;
+}
+
+div.edit_container_close{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+
+div.entry_container{
+  padding-top:5px;
+  border: 1px solid black;
+}
+
+div.content_box{
+  display:none;
+  margin-top:10px;
+  border-left:2px solid black;
+  padding-left:2px;
+}
+
 div.contentdiv{
   margin-top:200px;
 }
@@ -107,6 +148,31 @@ div.player_label_div{
 
 div#playerspec{
   /*display:flex;*/
+}
+
+div#tabs{
+  margin-top:50px;
+}
+
+div#tabs ul{
+  background-color: #7AC8CE;
+  border: none;
+  font-family: Comfortaa,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+  font-size: 12pt;
+}
+
+div.titlebar{
+  border-bottom: 1px solid black;
+  margin-bottom: 10px;
+}
+
+div.content_table{
+  overflow-y: scroll;
+  height:400px;
+}
+
+div.statement, div.statement_btn{
+  margin-bottom: 20px;
 }
 
 div.header_div{
@@ -124,6 +190,13 @@ select#protocols{
 
 img#couch-logo{
   height:100px;
+}
+
+textarea.statement_txt{
+  width:500px;
+  height:100px;
+  font-family: Comfortaa,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+  font-size: 16pt;
 }
 
 textarea.txt_editor{

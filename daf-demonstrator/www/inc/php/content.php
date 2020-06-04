@@ -7,7 +7,7 @@ $which = $_GET['which'];
 $client = new MongoDB\Client("mongodb://mongodb:27017");
 
 try{
-  $collection = $client->couch_content2->{$which};
+  $collection = $client->couch_content->{$which};
 
   if(isset($_GET['action'])){
     if($_GET['action']=="save"){
