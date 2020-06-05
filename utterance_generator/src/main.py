@@ -298,6 +298,7 @@ def check_first_run():
         dictionary = db["dictionary"]
         argument_rules = db["argument_rules"]
         vars = db["variables"]
+        content_descriptors = db["content_descriptors"]
 
         with open(file.replace("{file}","dictionary"), "r") as v:
             dictionary.insert_one(json.load(v))
@@ -313,6 +314,12 @@ def check_first_run():
 
             for v in variables:
                 vars.insert_one(v)
+
+        with open(file.replace("{file}", "content_descriptors"), "r") as cd:
+            cd = json.load(cd)
+
+            for c in cd:
+                content_descriptors.insert_one(c);
 
 
 if __name__ == '__main__':

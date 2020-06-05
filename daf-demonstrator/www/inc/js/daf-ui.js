@@ -38,18 +38,12 @@ daf_ui.create_statement_cell = function(statement, move_style){
   return cell;
 }
 
-daf_ui.create_content_tab = function(num, name, styles, insertBefore=null){
+daf_ui.create_content_tab = function(num, name, styles){
   var tab = $("<li />");
   var tab_link = $("<a />")
                   .attr("href", "#tabs-" + num)
                   .html(name);
   tab.append(tab_link);
-
-  /*if(insertBefore==null){
-    tab_list.append(tab);
-  }else{
-    tab.insertBefore($(insertBefore));
-  }*/
 
   var d = $("<div />").attr("id", "tabs-" + num).attr("class","content_table");
   d.append($("<input />").attr("type","hidden").attr("class","move_name").val(name));
@@ -109,6 +103,45 @@ daf_ui.create_edit_container = function(title, scale=1, position=0){
   return container;
 }
 
+
+/*
+tabdata = [
+  {
+  title: "xx",
+  content: "<html>"
+}
+]
+*/
+
+
+daf_ui.create_tab_container = function(tabdata){
+    var tab_container = $("<div />")
+                         .attr("id", "tabs");
+
+    var tab_list = $("<ul />");
+    tab_container.append(tab_list);
+
+    for(var i=0;i<tabdata.length;i++){
+      var title = tabdata[i]["title"];
+      var content = tabdata[i]["content"];
+
+      var tab = $("<li />");
+      var tab_link = $("<a />")
+                      .attr("href","#tabs-" + i)
+                      .html(title);
+      tab.append(tab_link);
+      tab_list.append(tab);
+
+      var content_container = $("<div />")
+                               .attr("id","tabs-" + i)
+                               .html(content);
+
+      tab_container.append(content_container);
+    }
+
+    return tab_container;
+};
+
 daf_ui.build_content_pane = function(key, value, title="Editing entry"){
   var key_txt = $("<input />")
                  .attr("class","entry")
@@ -138,14 +171,14 @@ daf_ui.build_content_pane = function(key, value, title="Editing entry"){
                            var statement = $(this).children(".statement_txt").val();
 
                            if(key != key_txt.val()){
-                             var tmp = daf_edit_content.tmp_content["entries"][key];
-                             delete daf_edit_content.tmp_content["entries"][key];
+                             var tmp = daf_edit_content.tmp_content[0]["entries"][key];
+                             delete daf_edit_content.tmp_content[0]["entries"][key];
                              key = key_txt.val();
-                             daf_edit_content.tmp_content["entries"][key] = tmp;
-                             console.log(daf_edit_content.tmp_content["entries"][key][move_name]);
+                             daf_edit_content.tmp_content[0]["entries"][key] = tmp;
+                             console.log(daf_edit_content.tmp_content[0]["entries"][key][move_name]);
                            }
 
-                           daf_edit_content.tmp_content["entries"][key][move_name][move_style] = statement;
+                           daf_edit_content.tmp_content[0]["entries"][key][move_name][move_style] = statement;
 
                          });
                        });
@@ -198,8 +231,8 @@ daf_ui.build_content_pane = function(key, value, title="Editing entry"){
                          return false;
                        }
 
-                       if(typeof daf_edit_content.tmp_content["entries"][key] === 'undefined'){
-                         daf_edit_content.tmp_content["entries"][key] = Object();
+                       if(typeof daf_edit_content.tmp_content[0]["entries"][key] === 'undefined'){
+                         daf_edit_content.tmp_content[0]["entries"][key] = Object();
                        }
 
                        daf_edit_content.tmp_content["entries"][key][name] = Object();

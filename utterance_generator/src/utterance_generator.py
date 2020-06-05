@@ -19,7 +19,8 @@ class UtteranceGenerator:
 
     def __init__(self, protocol, dialogueID):
 
-        self.descriptors_new = ContentDescriptorLoader('assets/' + protocol + '.rules').get_descriptors()
+        #self.descriptors_new = ContentDescriptorLoader('assets/' + protocol + '.rules').get_descriptors()
+        self.descriptors_new = ContentDescriptorLoader(protocol).get_descriptors()
         self.protocol = protocol
 
         self.dialogueID = dialogueID
