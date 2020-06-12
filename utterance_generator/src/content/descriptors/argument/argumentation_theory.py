@@ -32,6 +32,7 @@ class ArgumentationTheory:
             rules = data["rules"]
             self.contrariness = data["contrariness"]
             self.kbPrefs = data["preferences"]
+            self.premises = data["premises"]
         else:
             rules = []
 
@@ -62,7 +63,13 @@ class ArgumentationTheory:
 
         for variable,value in response.items():
             if value is not None:
-                self.premises.append("{variable}({value})".format(variable=variable, value=value))
+                if isinstance(value, list):
+                    for v in value:
+                        self.premises.append("{variable}({value})".format(variable=variable,value=v))
+                else:
+                    self.premises.append("{variable}({value})".format(variable=variable, value=value))
+
+        print("Premises: " + str(self.premises));
 
     def evaluate(self):
         theory = {"rules": [], "rulePrefs": []}
