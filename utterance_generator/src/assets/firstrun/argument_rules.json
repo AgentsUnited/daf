@@ -13,6 +13,7 @@
     ],
     "preferences": [
       "lowergoal(X) < preferredgoal(Y)"
-    ]
+    ],
+    "premises": []
   }
 ]
