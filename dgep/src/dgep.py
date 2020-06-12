@@ -298,8 +298,16 @@ class DGEP(DialogueManager):
                 return {"output": t}
             elif data["action"] == "save":
                 dgdl = data["protocol"]
-                dgdl_file().create(protocol, dgdl)
-                return {"status":"OK"}
+                f = dgdl_file().create(protocol, dgdl)
+
+                test = dgdl_file().test(protocol).strip();
+
+                if test == "":
+                    test = []
+                else:
+                    test = test.split("\n")
+
+                return {"status":"OK", "test": test}
 
         if protocol + ".dgdl" in os.listdir("src/assets/protocols"):
             file = open("src/assets/protocols/" + protocol + ".dgdl")
