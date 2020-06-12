@@ -248,10 +248,11 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
         result = col.find_one({"protocol": self.dialogues[dialogueID]})
 
         if "variables" in result:
-            for name,params in result["variables"].items():
-                if "clear_on_new" in params:
-                    if params["clear_on_new"] == True:
-                        to_return.append(params["name"])
+            for move_name, variables in result["variables"].items():
+                for name,params in variables.items():
+                    if "clear_on_new" in params:
+                        if params["clear_on_new"] == True:
+                            to_return.append(params["name"])
 
         return to_return
 

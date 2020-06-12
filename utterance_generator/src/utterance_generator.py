@@ -87,28 +87,30 @@ class UtteranceGenerator:
 
         if result is not None:
             if moveName in result["variables"]:
-                var = result["variables"][moveName]
-                name = var["name"]
-                value = var["value"]
 
-                append = False
+                for name, var in result["variables"][moveName].items():
+                    #var = result["variables"][moveName]
+                    #name = var["name"]
+                    value = var["value"]
 
-                if "append" in var and type(var["append"]) == bool:
-                    append = var["append"]
+                    append = False
 
-                if value[0] == "$":
-                    if value[1:] in reply:
-                        value = reply[value[1:]]
+                    if "append" in var and type(var["append"]) == bool:
+                        append = var["append"]
 
-                        #check if the value needs extracted
-                        matches = re.findall(self.value_regex, value)
+                    if value[0] == "$":
+                        if value[1:] in reply:
+                            value = reply[value[1:]]
 
-                        if matches:
-                            value = matches[0]
-                    else:
-                        value = ""
+                            #check if the value needs extracted
+                            matches = re.findall(self.value_regex, value)
 
-                to_return[name] = {"append": append, "value": value}
+                            if matches:
+                                value = matches[0]
+                        else:
+                            value = ""
+
+                    to_return[name] = {"append": append, "value": value}
 
         return to_return
 
