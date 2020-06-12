@@ -5,11 +5,11 @@ from ...skb import SKB
 
 class ArgumentDictionary:
 
-    def __init__(self, dialogueID, language="EN"):
+    def __init__(self, dialogueID, protocol, language="EN"):
         mongo = pymongo.MongoClient("mongodb://mongodb:27017/")
 
         database = os.getenv("MONGODB")
-        self.dictionary = mongo[database]["dictionary"].find_one({"language": language})
+        self.dictionary = mongo[database]["dictionary"].find_one({"protocol": protocol.lower()})
 
         self.var_regex = re.compile(r"(?:[^[]])*{([^{} ]+)}(?:[^[]])*")
 

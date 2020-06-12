@@ -11,7 +11,7 @@ class ArgumentDescriptor(ContentDescriptor):
         self.arg_regex = re.compile(r"(A[0-9]+):[ ]*([^-=>\n\r]+)(?:(?:=>|->)([^\n\r]+))?")
         self.term_regex = re.compile(r"(.*)\(([a-zA-z,_0-9? ]+)\)")
 
-        self.dictionary = ArgumentDictionary(dialogueID, "EN")
+        self.dictionary = ArgumentDictionary(dialogueID, protocol, "EN")
 
         self.protocol = protocol
 

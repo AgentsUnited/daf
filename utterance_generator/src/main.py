@@ -252,7 +252,7 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
                 for name,params in variables.items():
                     if "clear_on_new" in params:
                         if params["clear_on_new"] == True:
-                            to_return.append(params["name"])
+                            to_return.append(name)
 
         return to_return
 
