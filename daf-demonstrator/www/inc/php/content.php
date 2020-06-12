@@ -14,11 +14,18 @@ try{
       $result = Array();
       $content = json_decode(file_get_contents("php://input"));
       foreach($content as $c){
-        $id = $c->{'_id'}->{'$oid'};
-        $id = new \MongoDB\BSON\ObjectID($id);
-        unset($c->{'_id'});
 
-        $result[] = $collection->updateOne(['_id' => $id], ['$set' => $c]);
+        if(isset($c->{'_id'})){
+          $id = $c->{'_id'}->{'$oid'};
+          $id = new \MongoDB\BSON\ObjectID($id);
+          unset($c->{'_id'});
+
+          $collection->updateOne(['_id' => $id], ['$set' => $c]);
+        }else{
+          $result = $collection->insertOne($c);
+          $result = array("_id" => $result->getInsertedId());
+        }
+
       }
       echo json_encode($result,JSON_PRETTY_PRINT);
     }

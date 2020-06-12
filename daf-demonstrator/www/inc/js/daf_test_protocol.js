@@ -2,70 +2,40 @@ var protocols = Array();
 var participant_columns = Array();
 var available_moves = Array()
 
+var dgep_msg =
+  {
+    cmd:"new",
+    params:{
+      topic:"",
+      participants:[],
+      filstantiator:[],
+      authToken:"xyz",
+      filstantiator: {},
+      username: "test001@council-of-coaches.eu"
+    }
+  };
+
+var interaction_template =
+  {
+    cmd:"interaction",
+    params: {
+      speaker: "",
+      dialogueID: -1,
+      target: "",
+      reply: {
+        reply: {}
+      }
+    }
+  }
 
 var daf_test_protocol = Object();
 
-daf_test_protocol.handlers = {
-  "protocols": daf_test_protocol.display_protocols
-}
+daf_test_protocol.current_protocol = null;
 
 /**
  Function to run testing a protocol
 **/
 daf_test_protocol.run = function(){
-
-//function(message, topic, response_topic, callback)
-  amq.send(JSON.stringify({'cmd':'protocols', 'params':{}}), amq.requests, amq.response, function(message){
-    var response = JSON.parse(message.body);
-
-    var m = null;
-
-    for (const property in response) {
-      if(Object.keys(daf_test_protocol.handlers).includes(property)){
-        console.log(property);
-        m = daf_test_protocol.handlers[property];
-        console.log(m);
-        break;
-      }
-    }
-    if(m != null){
-      console.log("calling m");
-      m(response);
-    }
-  });
-
-
-  /* First subscribe to the topic to listen for DGEP responses */
-  var subscription = client.subscribe("/topic/DGEP/response", function(message){
-
-    /* Either build the list of protocols, or process the dialogue moves */
-    resp = JSON.parse(message.body);
-
-    /* Check if this is the protocols being returned */
-    if("protocols" in resp){
-      var p = resp["protocols"]
-
-      for(var i=0;i<p.length;i++){
-        protocols[p[i]["name"]] = p[i]["players"];
-        $("#protocols").append(create_dropdown_item(p[i]["name"], p[i]["name"]));
-      }
-    }else if("dialogueID" in resp){
-      /* If there's a participants array then create the canvas for first run */
-      if("participants" in resp){
-        daf_test_protocol.build_first_run(resp);
-      }
-      daf_test_protocol.process_incoming_moves(resp["moves"]);
-    }
-  });
-
-  /* Subscribe to the topic to listen for dialogue moves */
-  var moves_subscription = client.subscribe("/topic/DGEP/moves", function(message){
-    resp = JSON.parse(message.body);
-
-    if("moves" in resp){
-      daf_test_protocol.process_incoming_moves(resp["moves"]);
-    }
-  });
 
   var d = create_content_div("Select the protocol you would like to test:<br /><br />");
 
@@ -77,7 +47,23 @@ daf_test_protocol.run = function(){
   d.append(s);
   daf_ui.append(d);
 
-  client.send("/topic/DGEP/requests", {priority: 9}, JSON.stringify({'cmd':'protocols', 'params':{}}));
+  /* Request the protocols from the DAF and listen for a response */
+  amq.send(JSON.stringify({'cmd':'protocols', 'params':{}}), amq.requests, amq.response, function(message){
+      var response = JSON.parse(message.body);
+
+      console.log(response);
+
+      protocols = response["protocols"];
+
+      for(var i=0;i<response["protocols"].length;i++){
+        var protocol = response["protocols"][i];
+        var opt = $("<option />")
+                   .attr("value", i)
+                   .html(protocol["name"]);
+
+        s.append(opt);
+      }
+  });
 }
 
 /**
@@ -150,7 +136,7 @@ daf_test_protocol.process_incoming_moves = function(moves){
     }
 
     if(terminate){
-      return terminate_dialogue();
+      return daf_test_protocol.terminate_dialogue();
     }
 
   available_moves = Array();
@@ -178,11 +164,12 @@ daf_test_protocol.process_incoming_moves = function(moves){
         moveID: moves[j]["moveID"],
         speaker: participants[i],
         target: moves[j]["target"],
-        reply: moves[j]["reply"]
+        reply: moves[j]["reply"],
+        vars: moves[j]["vars"]
       }
 
       var btn = $("<button />").attr("id", j).html(moves[j]["opener"]).on("click", function(){
-        send_move($(this).attr("id"));
+        daf_test_protocol.prepare_send_move($(this).attr("id"));
         $(this).parent().html($(this).html());
       });
       d.append(btn).append("<br />");
@@ -199,25 +186,99 @@ daf_test_protocol.process_incoming_moves = function(moves){
   t.append(r);
 }
 
+daf_test_protocol.prepare_send_move = function(moveID){
+  var move = available_moves[moveID];
+  var vars = move["vars"];
+
+  if(Object.keys(vars).length==0){
+    /* Send the move without updating vars */
+    daf_test_protocol.send_move(moveID);
+  }else{
+    var updated_premises = Array();
+
+    for(let [key, value] of Object.entries(vars)){
+      var v = value["value"];
+      updated_premises.push(key + "(" + v + ")");
+    }
+
+    if(updated_premises.length > 0){
+      daf_test_protocol.update_premises(updated_premises, function(){
+          daf_test_protocol.send_move(moveID);
+      });
+    }
+  }
+
+}
+
+/** Fuction to send a move and process the response **/
+daf_test_protocol.send_move = function(moveID){
+  var move = available_moves[moveID];
+  var move_template = interaction_template;
+
+  /*var vars = move["vars"];
+
+  var updated_premises = Array();
+
+  for(let [key, value] of Object.entries(vars)){
+    var v = value["value"];
+    updated_premises.push(key + "(" + v + ")");
+  }
+
+  if(updated_premises.length > 0){
+    daf_test_protocol.update_premises(updated_premises)
+    console.log("blah");
+  }*/
+
+  move_template["params"]["moveID"] = move["moveID"];
+  move_template["params"]["speaker"] = move["speaker"];
+  move_template["params"]["target"] = move["target"];
+  move_template["params"]["reply"]["reply"] = move["reply"];
+
+  amq.send(JSON.stringify(move_template), amq.requests, amq.moves, function(message){
+      var response = JSON.parse(message.body);
+      daf_test_protocol.process_incoming_moves(response["moves"]);
+  });
+};
+
+daf_test_protocol.update_premises = function(premises, callback){
+  $.when(
+    $.getScript("inc/js/daf_edit_content.js"),
+    $.getScript("inc/js/content/argument_rules.js"),
+    $.Deferred(function(deferred){
+      deferred.resolve();
+    })
+  ).done(function(){
+      console.log("Updating premises " + daf_test_protocol.current_protocol);
+      argument_rules.add_new_premises(premises, daf_test_protocol.current_protocol, function(data){
+        callback();
+      });
+  });
+};
+
 /**
  Function to respond to selecting a protocol
  **/
 daf_test_protocol.select_protocol = function(){
   var sel_val = $("#protocols").children("option:selected").val();
 
+  console.log(sel_val);
+
   if(sel_val == "-1"){ return; }
 
   var protocol = protocols[sel_val];
+  daf_test_protocol.current_protocol = protocol["name"];
+
+  console.log(protocol);
 
   /* Set the protocol in the message */
-  dgep_msg.params.protocol = sel_val;
-  dgep_msg.params.topic = sel_val;
+  dgep_msg.params.protocol = protocol["name"];
+  dgep_msg.params.topic = protocol["name"];
 
-  var d = create_content_div("Great, you've chosen the " + sel_val + " protocol. Next, you need to select how many of each type of participant you want:<br /><br />");
+  var d = create_content_div("Great, you've chosen the " + protocol["name"] + " protocol. Next, you need to select how many of each type of participant you want:<br /><br />");
   var table_div = create_table_div("30%");
 
-  for(var i=0;i<protocol.length;i++){
-    var player = protocol[i];
+  for(var i=0;i<protocol["players"].length;i++){
+    var player = protocol["players"][i];
 
     var id = player["id"];
     var min = parseInt(player["min"]);
@@ -299,7 +360,7 @@ daf_test_protocol.set_participants = function(){
   var t = create_table_div("50%");
   var row_div = create_row_div();
 
-  var btn = $("<button />").html("Continue").on('click', save_participants);
+  var btn = $("<button />").html("Continue").on('click', daf_test_protocol.save_participants);
   row_div.append(btn);
   t.append(row_div);
   d.append(t);
@@ -307,4 +368,73 @@ daf_test_protocol.set_participants = function(){
   daf_ui.append(d);
 
   $("#agent_0_name").focus();
+}
+
+daf_test_protocol.save_participants = function(){
+
+  /* Populate the message with the participants */
+  for(var i=0;i<num_agents;i++){
+    var name = $("#agent_" + i + "_name").val();
+    var personality = $("#agent_" + i + "_personality").children("option:selected").val();
+
+    dgep_msg.params.participants.push({name: name, player: "Agent"});
+    dgep_msg.params.filstantiator[name] = {personality: personality};
+
+    console.log(dgep_msg);
+  }
+
+  var d = create_content_div("Great! Last thing - what is the name of the user?<br /><br />");
+
+  var t = create_table_div("50%");
+  var r = create_row_div();
+
+  var label = $("<div />").html("User name:");
+
+  var name_input = $("<input />").attr("id","user_name");
+
+  var name = $("<div />").append(name_input);
+
+  r.append(label).append(name);
+  t.append(r);
+
+  r = create_row_div();
+  var btn = $("<button />").html("Continue").on("click", daf_test_protocol.save_user);
+  r.append(btn);
+  t.append(r);
+
+  d.append(t);
+
+  $("#innercontent").append(d);
+
+  scroll_to(d);
+
+  $("#user_name").focus();
+}
+
+daf_test_protocol.save_user = function(){
+  console.log("Saving user");
+  var user_name = $("#user_name").val();
+  dgep_msg.params.participants.push({name: user_name, player: "User"})
+
+  amq.send(JSON.stringify(dgep_msg), amq.requests, amq.response, function(message){
+    var response = JSON.parse(message.body);
+    daf_test_protocol.build_first_run(response);
+    daf_test_protocol.process_incoming_moves(response["moves"]);
+  });
+}
+
+daf_test_protocol.terminate_dialogue = function(){
+  var t = $("#dialogue_table");
+  var r = create_row_div();
+
+  var reset = $("<button />")
+               .attr("id","reset")
+               .on("click",  daf_ui.reset)
+               .html("End of dialogue; click to reset");
+
+  //r.append($("<div />").html("<br />End of dialogue").css("text-align","center"));
+  r.append(reset);
+  t.append(r);
+
+  return;
 }

@@ -104,14 +104,20 @@ div#innercontent{
 div.edit_container{
   height: 500px;
   width: 600px;
-  position: relative;
-  top: -100px;
+  position: absolute;
+  top: 10px;
   padding:20px;
   background-color: #7AC8CE;
   border-radius: 25px;
   -moz-box-shadow: 0 0 10px #000000;
   -webkit-box-shadow: 0 0 10px #000000;
   box-shadow: 0 0 10px #000000;
+  /* overflow-y: scroll;*/
+}
+
+div.edit_container_inner{
+  overflow-y: scroll;
+  height: 90%;
 }
 
 div.edit_container_close{
@@ -164,6 +170,7 @@ div#tabs ul{
 div.titlebar{
   border-bottom: 1px solid black;
   margin-bottom: 10px;
+  font-size:12pt;
 }
 
 div.content_table{
@@ -201,7 +208,22 @@ textarea.statement_txt{
 
 textarea.txt_editor{
   white-space:pre-wrap;
-  width:90%;
+  width:95%;
   margin: auto;
   height:500px;
+  font-size:14pt;
+  line-height:20px;
+}
+
+ul.form_flex li{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top:10px;
+}
+
+ul.form_flex > li > label,
+ul.form_flex li p{
+  flex: 1 0 120px;
+  max-width: 300px;
 }
