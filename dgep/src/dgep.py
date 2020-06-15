@@ -66,6 +66,7 @@ class DGEP(DialogueManager):
             to_return = {}
             if "protocol" in list(data.keys()):
                 protocol = data["protocol"]
+                protocol = protocol.lower()
 
                 ''' If the provided protocol starts yarn. translate it first'''
                 if protocol[:5] == 'yarn.':
@@ -290,6 +291,7 @@ class DGEP(DialogueManager):
     def get_protocol(self, data):
 
         protocol = data["name"]
+        protocl = protocol.lower()
 
         if "action" in data.keys():
             if data["action"] == "test":
@@ -307,7 +309,7 @@ class DGEP(DialogueManager):
                 else:
                     test = test.split("\n")
 
-                return {"status":"OK", "test": test}
+                return {"status":"OK", "protocol": protocol, "test": test}
 
         if protocol + ".dgdl" in os.listdir("src/assets/protocols"):
             file = open("src/assets/protocols/" + protocol + ".dgdl")

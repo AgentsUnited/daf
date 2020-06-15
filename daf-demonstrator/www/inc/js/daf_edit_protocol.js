@@ -189,10 +189,10 @@ daf_edit_protocol.save_protocol = function(new_protocol=false){
               deferred.resolve();
             })
           ).done(function(){
-            dictionary.create_new(protocol);
+            /*dictionary.create_new(protocol);
             content_descriptors.create_new(protocol);
             argument_rules.create_new(protocol);
-            variables.create_new(protocol);
+            variables.create_new(protocol);*/
           });
        }
         daf_ui.reset();

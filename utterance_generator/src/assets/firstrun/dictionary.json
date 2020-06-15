@@ -1,44 +1,47 @@
-{
-  "language": "EN",
-  "id": 1,
-  "entries": {
-    "set_goal(X)": {
-      "propose": {
-        "socratic": "How about we set you a goal of $X {currentGoal}?",
-        "authoritative": "We should set you a goal of $X {currentGoal}"
+[
+  {
+    "language": "EN",
+    "id": 1,
+    "protocol": "goalsetting",
+    "entries": {
+      "set_goal(X)": {
+        "propose": {
+          "socratic": "How about we set you a goal of $X {currentGoal}?",
+          "authoritative": "We should set you a goal of $X {currentGoal}"
+        },
+        "confirm": {
+          "*": "Sure, $X {currentGoal} sounds like a good goal"
+        },
+        "challenge": {
+          "*": "Why $X {currentGoal}?"
+        },
+        "reject": {
+          "*": "No, I don't think I can manage $X {currentGoal}"
+        },
+        "end": {
+          "*": "Fantastic! I'm sure you'll reach it!"
+        }
       },
-      "confirm": {
-        "*": "Sure, $X {currentGoal} sounds like a good goal"
+      "achievable(X)": {
+        "explain": {
+          "socratic": "Well, it's a very achievable goal for you",
+          "authoritative": "It's something you can achieve"
+        }
       },
-      "challenge": {
-        "*": "Why $X {currentGoal}?"
+      "name(X)": {
+        "end": {
+          "*": "Nice to meet you, $X"
+        }
       },
-      "reject": {
-        "*": "No, I don't think I can manage $X {currentGoal}"
+      "reasonable(X)": {
+        "explain": {
+          "authoritative": "It's a reasonable goal for you",
+          "socratic": "Well, you will definitely manage it"
+        }
       },
-      "end": {
-        "*": "Fantastic! I'm sure you'll reach it!"
+      "{current_goal}_{current_goal_value}": {
+        "*": "{current_goal_value} {current_goal}"
       }
-    },
-    "achievable(X)": {
-      "explain": {
-        "socratic": "Well, it's a very achievable goal for you",
-        "authoritative": "It's something you can achieve"
-      }
-    },
-    "name(X)": {
-      "end": {
-        "*": "Nice to meet you, $X"
-      }
-    },
-    "reasonable(X)": {
-      "explain": {
-        "authoritative": "It's a reasonable goal for you",
-        "socratic": "Well, you will definitely manage it"
-      }
-    },
-    "{current_goal}_{current_goal_value}": {
-      "*": "{current_goal_value} {current_goal}"
     }
   }
-}
+]

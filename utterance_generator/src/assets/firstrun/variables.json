@@ -1,6 +1,6 @@
 [
   {
-    "protocol": "GoalSetting",
+    "protocol": "goalsetting",
     "variables": {
       "Confirm": {
         "agreedgoal": {

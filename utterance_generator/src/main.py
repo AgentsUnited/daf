@@ -31,6 +31,31 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
 
         self.dialogues = {}
 
+
+        self.content_models = {
+            "argument_rules":{
+                "protocol": None,
+                "preferences": [],
+                "contrariness": [],
+                "rules": [],
+                "premises": []
+            },
+            "dictionary":{
+                "protocol": None,
+                "language": "EN",
+                "entries": {}
+            },
+            "variables":{
+                "protocol": None,
+                "variables": {}
+            },
+            "content_descriptors":{
+                "protocol": None,
+                "descriptors": {}
+            }
+        }
+
+
     def generate_session_id(self, data):
         hash_string = str(data) + str(datetime.datetime.now())
         return hashlib.md5(hash_string.encode('utf-8')).hexdigest()
@@ -233,9 +258,27 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
 
             print("Returning data")
             print(str(data))
+        elif "protocol" in data.keys():
+            self.initialise_content(data["protocol"])
 
         return data
 
+
+    def initialise_content(self, protocol):
+        database = os.getenv("MONGODB")
+        mongo = pymongo.MongoClient("mongodb://mongodb:27017/")
+        db = mongo[database]
+
+        protocol = protocol.lower();
+
+        for key, value in self.content_models.items():
+            col = db[key];
+
+            result = col.find_one({"protocol": protocol})
+
+            if result is None:
+                value["protocol"] = protocol
+                col.insert_one(value);
 
     def get_clear_vars(self, dialogueID):
         database = os.getenv("MONGODB")
@@ -301,8 +344,11 @@ def check_first_run():
         vars = db["variables"]
         content_descriptors = db["content_descriptors"]
 
-        with open(file.replace("{file}","dictionary"), "r") as v:
-            dictionary.insert_one(json.load(v))
+        with open(file.replace("{file}","dictionary"), "r") as d:
+            d = json.load(d)
+
+            for p in d:
+                dictionary.insert_one(p)
 
         with open(file.replace("{file}", "argument_rules"), "r") as rules:
             rules = json.load(rules)

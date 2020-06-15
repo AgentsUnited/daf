@@ -1,6 +1,6 @@
 [
   {
-    "protocol": "GoalSetting",
+    "protocol": "goalsetting",
     "rules": [
       "achievable(X)=>set_goal(X)",
       "preferredgoal(X)=>achievable(X)",
