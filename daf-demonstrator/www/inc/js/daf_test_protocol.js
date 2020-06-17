@@ -202,7 +202,7 @@ daf_test_protocol.prepare_send_move = function(moveID){
     }
 
     if(updated_premises.length > 0){
-      daf_test_protocol.update_premises(updated_premises, function(){
+      daf_test_protocol.update_coaching_vars(vars, function(){
           daf_test_protocol.send_move(moveID);
       });
     }
@@ -240,16 +240,17 @@ daf_test_protocol.send_move = function(moveID){
   });
 };
 
-daf_test_protocol.update_premises = function(premises, callback){
+daf_test_protocol.update_coaching_vars = function(vars, callback){
   $.when(
     $.getScript("inc/js/daf_edit_content.js"),
-    $.getScript("inc/js/content/argument_rules.js"),
+    $.getScript("inc/js/content/coaching_variables.js"),
     $.Deferred(function(deferred){
       deferred.resolve();
     })
   ).done(function(){
-      console.log("Updating premises " + daf_test_protocol.current_protocol);
-      argument_rules.add_new_premises(premises, daf_test_protocol.current_protocol, function(data){
+      console.log("Updating with vars");
+      console.log(vars);
+      coaching_variables.update(vars, function(data){
         callback();
       });
   });

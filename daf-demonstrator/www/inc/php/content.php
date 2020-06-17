@@ -20,7 +20,7 @@ try{
           $id = new \MongoDB\BSON\ObjectID($id);
           unset($c->{'_id'});
 
-          $collection->updateOne(['_id' => $id], ['$set' => $c]);
+          $collection->replaceOne(['_id' => $id], $c);
         }else{
           $result = $collection->insertOne($c);
           $result = array("_id" => $result->getInsertedId());

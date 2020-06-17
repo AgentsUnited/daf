@@ -169,6 +169,7 @@ variables.save = function(form){
 
   daf_edit_content.content[variables.current_variable_set]["variables"][variables.current_move_name][variables.current_var_name] = entry;
 
+  
   console.log(daf_edit_content.content);
 
   daf_edit_content.save("variables");

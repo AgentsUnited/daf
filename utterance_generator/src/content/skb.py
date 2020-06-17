@@ -53,7 +53,16 @@ class SKB:
         """ Method to get the values of the given variables in the SKB """
 
         if self.auth_token is None:
-            return {}
+
+            db_name = os.getenv("MONGODB")
+            mongo = pymongo.MongoClient("mongodb://mongodb:27017/")
+            col = mongo[db_name]["coaching_variables"]
+
+            result = col.find_one()
+
+            to_return = {key: value for (key, value) in result.items() if key in var_names}
+
+            return to_return
         else:
             headers = self.standard_headers
             headers["X-Auth-Token"] = self.auth_token
@@ -68,7 +77,7 @@ class SKB:
             for key,value in variables.items():
                 if value is not None or value != "":
                     to_return[key] = value
-                    
+
             return to_return
 
     def mock_login(self):

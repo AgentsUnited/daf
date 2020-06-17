@@ -5,14 +5,15 @@ var x = {
   "knowledgebase": "knowledge base",
   "dictionary": "dictionary",
   "descriptors": "Content descriptors",
-  "argument_rules": "Rules"
+  "argument_rules": "Argument model"
 }
 
 var content_types = {
-  "dictionary": "Dictionary",
-  "argument_rules": "Rules",
+  "dictionary": "Dictionaries",
+  "argument_rules": "Argument models",
   "content_descriptors": "Content descriptors",
-  "variables": "Variables"
+  "coaching_variables": "Coaching variables",
+  "variables": "Saved variables"
 }
 
 var num_content_tabs = 0;
@@ -22,7 +23,7 @@ daf_edit_content.content = Object();
 daf_edit_content.run = function(){
   var d = create_content_div("Which content do you want to edit?<br /><br />");
 
-  var t = create_table_div("65%");
+  var t = create_table_div("90%");
   var r = create_row_div();
 
   for(let [name, label] of Object.entries(content_types)){

@@ -32,7 +32,7 @@ class ArgumentationTheory:
             rules = data["rules"]
             self.contrariness = data["contrariness"]
             self.kbPrefs = data["preferences"]
-            self.premises = data["premises"]
+            #self.premises = self.get_premises(protocol)
         else:
             rules = []
 
@@ -146,6 +146,23 @@ class ArgumentationTheory:
             return match[0]
         else:
             return statement
+
+    def get_premises(self, protocol):
+        db_name = os.getenv("MONGODB")
+        mongo = pymongo.MongoClient("mongodb://mongodb:27017/")
+        col = mongo[db_name]["coaching_variables"]
+
+        result = col.find_one()
+
+        premises = []
+
+        for key, value in result.items():
+            if key != "_id":
+                premises.append("{key}({value})".format(key=key,value=value))
+
+        return premises;
+
+
 
 class Rule:
 

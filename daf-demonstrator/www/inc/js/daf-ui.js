@@ -43,24 +43,79 @@ daf_ui.concrete_build_edit_pane = function(label,buttons, container, button_call
     daf_ui.popup(d, container);
 };
 
+daf_ui.create_form_element = function(element_data){
+  var l = $("<li />");
+  var id = element_data["id"];
+  var type = element_data["type"];
+  var value = element_data["value"];
+
+  var label = $("<label />")
+               .attr("for", id)
+               .append(element_data["label"]);
+
+  var input = null;
+
+  if(type == "button"){
+    var callback = element_data["callback"];
+    input = $("<button />")
+             .html(value)
+             .attr("id",id)
+             .on("click", function(){
+               callback($("#var_form"));
+             });
+  }else{
+    input = $("<input />")
+               .attr("id", id)
+               .attr("type",type)
+               .attr("value", value);
+  }
+
+
+
+  if(type == "checkbox"){
+    if(value === true){
+      input.prop("checked", true);
+    }else{
+      input.prop("checked", false);
+    }
+  }
+
+  l.append(label).append(input);
+
+  return l;
+
+};
+
 daf_ui.build_form_edit_pane = function(form_data, container, button_callback){
   var d = $("<div />");
   var form = $("<ul />").attr("class", "form_flex").attr("id","var_form");
 
   for(var i=0;i<form_data.length;i++){
-    var l = $("<li />");
+    /*var l = $("<li />");
     var id = form_data[i]["id"];
     var type = form_data[i]["type"];
     var value = form_data[i]["value"];
 
     var label = $("<label />")
                  .attr("for", id)
-                 .html(form_data[i]["label"]);
+                 .append(form_data[i]["label"]);
 
-    var input = $("<input />")
-               .attr("id", id)
-               .attr("type",type)
-               .attr("value", value);
+    var input = null;
+
+    if(type == "button"){
+      var callback = form_data[i]["callback"];
+      input = $("<button />")
+               .html(value)
+               .on("click", function(){
+                 callback(form);
+               });
+    }else{
+      input = $("<input />")
+                 .attr("id", id)
+                 .attr("type",type)
+                 .attr("value", value);
+    }
+
 
 
     if(type == "checkbox"){
@@ -71,12 +126,12 @@ daf_ui.build_form_edit_pane = function(form_data, container, button_callback){
       }
     }
 
-
     l.append(label).append(input);
-    form.append(l);
+    form.append(l);*/
+    form.append(daf_ui.create_form_element(form_data[i]));
   }
 
-  var l = $("<li />");
+  var l = $("<li />").attr("id","save_btn");
   var btn = $("<button />")
              .html("Save")
              .on("click", function(){

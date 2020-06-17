@@ -343,6 +343,7 @@ def check_first_run():
         argument_rules = db["argument_rules"]
         vars = db["variables"]
         content_descriptors = db["content_descriptors"]
+        coaching_variables = db["coaching_variables"] # for testing - should normally interface with skb
 
         with open(file.replace("{file}","dictionary"), "r") as d:
             d = json.load(d)
@@ -367,6 +368,11 @@ def check_first_run():
 
             for c in cd:
                 content_descriptors.insert_one(c);
+
+        with open(file.replace("{file}", "coaching_variables"), "r") as cv:
+            cv = json.load(cv)
+
+            coaching_variables.insert_one(cv);
 
 
 if __name__ == '__main__':
