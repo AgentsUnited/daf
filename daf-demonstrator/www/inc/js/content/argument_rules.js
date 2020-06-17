@@ -78,7 +78,7 @@ argument_rules.create_edit_pane = function(i){
   var elements = Array();
 
   for(let [key,value] of Object.entries(rules)){
-      if(key != '_id' && typeof value === 'object'){
+      if(key != '_id' && key != "premises" && typeof value === 'object'){
         elements.push({
           title: key,
           content: argument_rules.create_content_text(value,key)
