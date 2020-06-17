@@ -23,7 +23,7 @@ daf_edit_content.content = Object();
 daf_edit_content.run = function(){
   var d = create_content_div("Which content do you want to edit?<br /><br />");
 
-  var t = create_table_div("90%");
+  var t = create_table_div("99%");
   var r = create_row_div();
 
   for(let [name, label] of Object.entries(content_types)){
