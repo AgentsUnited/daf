@@ -44,6 +44,8 @@ coaching_variables.build_edit_pane = function(data, container){
     }
   });
 
+  container.find(".edit_container_inner").append("Note: these variables should be set for testing purposes only.<br />")
+
   daf_ui.build_form_edit_pane(form_data, container, function(form){
     $(form).find("input[data-type=label-box]").each(function(){
       var key = $(this).val().trim();
@@ -91,6 +93,20 @@ coaching_variables.update = function(vars, callback){
     daf_edit_content.save("coaching_variables", false, callback);
   });
 };
+
+coaching_variables.clear = function(vars, callback){
+  daf_edit_content.load_content("coaching_variables", function(data){
+    var content = daf_edit_content.content[0];
+    for(var i=0;i<vars.length;i++){
+      if(vars[i] in content){
+        delete content[vars[i]];
+      }
+    }
+    daf_edit_content.content[0] = content;
+
+    daf_edit_content.save("coaching_variables", false, callback);
+  });
+}
 
 coaching_variables.create_label = function(key, id){
 

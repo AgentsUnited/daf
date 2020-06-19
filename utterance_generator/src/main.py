@@ -223,7 +223,11 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
         dialogueID = data["dialogueID"]
         topic = "FILSTANTIATOR/dialogue_moves"
 
-        moves = self.get_cached_moves(dialogueID)
+        if "cached" in data and data["cached"]:
+            moves = self.get_cached_moves(dialogueID)
+        else:
+            self.clear_move_cache(dialogueID)
+            moves = None
 
         if moves is not None:
             data["moves"]  = moves
@@ -303,7 +307,7 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
 
         try:
             destination = headers["destination"]
-            input_data = ast.literal_eval(body)
+            input_data = json.loads(body)
             if destination in handlers:
                 handler = handlers[destination]
 

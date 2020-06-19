@@ -48,7 +48,7 @@ class DGEPListener(stomp.ConnectionListener):
             - cmd corresponds to a defined DGEP endpoint
             - params corresponds to the data required by that endpoint
         """
-        data = ast.literal_eval(body)
+        data = json.loads(body)
 
         if "cmd" not in data.keys():
             self.send_message(json.dumps({"error":"no command specified"}))

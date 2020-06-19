@@ -412,6 +412,29 @@ daf_test_protocol.save_participants = function(){
   $("#user_name").focus();
 }
 
+daf_test_protocol.prepare_first_run = function(data){
+    if("clearvars" in data){
+      $.when(
+        $.getScript("inc/js/daf_edit_content.js"),
+        $.getScript("inc/js/content/coaching_variables.js"),
+        $.Deferred(function(deferred){
+          deferred.resolve();
+        })
+      ).done(function(){
+          coaching_variables.clear(data["clearvars"], function(x){
+            amq.send(JSON.stringify({cmd:"moves", params:{cached: false, dialogueID:data["dialogueID"]}}), amq.requests, amq.moves, function(message){
+              var response = JSON.parse(message.body);
+              daf_test_protocol.build_first_run(data);
+              daf_test_protocol.process_incoming_moves(response["moves"]);
+            });
+          });
+      });
+    }else{
+      daf_test_protocol.build_first_run(data);
+      daf_test_protocol.process_incoming_moves(data["moves"]);
+    }
+};
+
 daf_test_protocol.save_user = function(){
   console.log("Saving user");
   var user_name = $("#user_name").val();
@@ -419,8 +442,8 @@ daf_test_protocol.save_user = function(){
 
   amq.send(JSON.stringify(dgep_msg), amq.requests, amq.response, function(message){
     var response = JSON.parse(message.body);
-    daf_test_protocol.build_first_run(response);
-    daf_test_protocol.process_incoming_moves(response["moves"]);
+    daf_test_protocol.prepare_first_run(response);
+    //daf_test_protocol.process_incoming_moves(response["moves"]);
   });
 }
 
