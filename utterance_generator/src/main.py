@@ -197,8 +197,8 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
                 data["params"]["sessionID"] = session_id
                 if data["params"]["topic"] == "GOALSETTING":
                     data["params"]["topic"] = "GoalSetting"
-                self.dialogues[session_id] = data["params"]["topic"]
-                data["params"]["protocol"] = data["params"]["topic"]
+                self.dialogues[session_id] = data["params"]["topic"].lower();
+                data["params"]["protocol"] = data["params"]["topic"].lower();
 
                 print("Sending data to DGEP: " + str(data))
 
