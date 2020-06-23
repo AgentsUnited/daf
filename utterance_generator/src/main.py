@@ -195,8 +195,6 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
                 session_id = self.new_dialogue(data["params"])
                 print("Session ID: " + str(session_id))
                 data["params"]["sessionID"] = session_id
-                if data["params"]["topic"] == "GOALSETTING":
-                    data["params"]["topic"] = "GoalSetting"
                 self.dialogues[session_id] = data["params"]["topic"].lower();
                 data["params"]["protocol"] = data["params"]["topic"].lower();
 
