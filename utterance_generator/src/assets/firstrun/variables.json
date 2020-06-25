@@ -9,7 +9,7 @@
         }
       },
       "Reject": {
-        "agreedgoal": {
+        "rejectedgoal": {
           "value": "$p",
           "append": true,
           "clear_on_new": true
