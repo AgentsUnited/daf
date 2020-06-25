@@ -31,6 +31,10 @@ class ArgumentDictionary:
                     print("Matches: " + str(matches))
 
                     for m in matches:
+                        # clean up the statement by making the vars lowercase
+                        statement = statement.replace("{{{var}}}".format(var=m), "{{{newvar}}}".format(newvar=m.lower()))
+
+                        m = m.lower()
                         response = skb.get_variable_value(m)
                         if response[m] is None:
                             response[m] = ""
