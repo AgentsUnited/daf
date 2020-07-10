@@ -82,7 +82,7 @@ public class RuleSet {
     public final Set<Rule> generateSpecificRules(Set<String> language) {
 
         language.addAll(this.rulesLanguage);
-        
+
         for (Rule r : this.generalRules) {
             for (Map<String, String> variableMap : new VariableMapping(r.getVariables(), language)) {
                 String instantiatedRule = r.instantiate(variableMap);
@@ -226,5 +226,9 @@ public class RuleSet {
     @Override
     public String toString() {
         return this.generalRules.toString();
+    }
+
+    public Set<String> getRulesLanguage(){
+      return this.rulesLanguage;
     }
 }

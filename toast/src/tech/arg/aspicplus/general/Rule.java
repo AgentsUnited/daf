@@ -50,7 +50,7 @@ public class Rule {
         if (this.consequent != null) {
             constants.addAll(this.consequent.getConstants());
         }
-        
+
         return constants;
     }
 

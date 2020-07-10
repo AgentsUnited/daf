@@ -118,7 +118,7 @@ public class Predicate {
         }
 
         for (String c : this.content) {
-            if (Character.isLowerCase(c.charAt(0))) {
+            if (Character.isLowerCase(c.charAt(0)) || Character.isDigit(c.charAt(0))) {
                 constants.add(c);
             }
         }
@@ -145,7 +145,7 @@ public class Predicate {
         /* First get all the "non-variables" from this predicate */
         for (int i = 0; i < this.content.size(); i++) {
             String c = this.content.get(i);
-            if (Character.isLowerCase(c.charAt(0))) {
+            if (Character.isLowerCase(c.charAt(0)) || Character.isDigit(c.charAt(0))) {
                 p.content.set(i, c);
             }
         }
@@ -166,7 +166,7 @@ public class Predicate {
         if (this.content == null || this.content.isEmpty()) {
             return this.name;
         }
-        
+
         return this.name + this.content.toString().replace("[", "(").replace("]", ")").replace(", ", ",");
     }
 

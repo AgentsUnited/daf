@@ -31,18 +31,23 @@ public class GeneralAspic {
     /**
      * Method to process the contents of this object into concrete rules,
      * preferences and contrariness
-     * @return 
+     * @return
      */
     public final Map<String, JSONArray> process() {
         Map<String, JSONArray> p = new HashMap<>();
 
+        // for (String s : Arrays.asList("axioms", "premises", "assumptions", "kbPrefs", "contrariness")) {
+        //     p.put(s, kb.getJSONArray(s));
+        // }
+
+        p.put("rules", new JSONArray(rules.generateSpecificRules(kb.getLanguage())));
+        kb.addToLanguage(rules.getRulesLanguage());
+
+        p.put("rulePrefs", new JSONArray(rules.getSpecificPreferences()));
+
         for (String s : Arrays.asList("axioms", "premises", "assumptions", "kbPrefs", "contrariness")) {
             p.put(s, kb.getJSONArray(s));
         }
-
-        p.put("rules", new JSONArray(rules.generateSpecificRules(kb.getLanguage())));
-        p.put("rulePrefs", new JSONArray(rules.getSpecificPreferences()));
-
         return p;
     }
 

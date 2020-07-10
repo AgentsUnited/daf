@@ -1,5 +1,5 @@
 FROM frekele/ant:1.10.1-jdk8
-COPY . /toast
+ADD . /toast
 WORKDIR "/toast"
 RUN ant
 EXPOSE 1234

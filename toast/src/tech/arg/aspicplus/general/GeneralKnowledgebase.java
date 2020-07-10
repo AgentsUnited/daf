@@ -269,6 +269,12 @@ public class GeneralKnowledgebase {
         return toReturn;
     }
 
+    public final void addToLanguage(Set<String> s){
+      this.language.addAll(s);
+      this.updateSpecificContrariness();
+      this.updateSpecificPreferences();
+    }
+
     public final JSONObject toJSON() throws JSONException {
         JSONObject kb = new JSONObject();
 
