@@ -150,7 +150,7 @@ daf_test_protocol.process_incoming_moves = function(moves){
   for(var i=0;i<participants.length;i++){
 
     var moves = moves[participants[i]];
-    var d = $("<div />").css("border-bottom","1px solid black");
+    var d = $("<div />").css("border-bottom","1px solid black").css("width","50%");
 
     for(var j=0;j<moves.length;j++){
 

@@ -18,6 +18,7 @@ class ArgumentationTheory:
         self.kbPrefs = []
         self.rulePrefs = []
         self.dialogueID = dialogueID
+        self.defeat = []
 
     def load_argument_model(self, protocol=None):
 
@@ -112,6 +113,8 @@ class ArgumentationTheory:
 
         result = json.loads(result.text)
 
+        self.defeat = result["defeat"]
+
         # refactor the set of arguments to make them easier to query
         tmp = {}
 
@@ -137,6 +140,16 @@ class ArgumentationTheory:
         print("AT:" + str(result))
 
         return result
+
+
+    def defeats(self, arg1, arg2):
+        arg1 = arg1.strip()
+        arg2 = arg2.strip()
+
+        d1 = "{arg1}>{arg2}".format(arg1=arg1,arg2=arg2)
+        d2 = "{arg2}>{arg1}".format(arg1=arg1,arg2=arg2)
+
+        return d1 in self.defeat and d2 not in self.defeat
 
     def get_term(self, statement):
         matches = re.findall(r"(.*)\(([a-zA-z,_0-9? ]+)\)", statement)

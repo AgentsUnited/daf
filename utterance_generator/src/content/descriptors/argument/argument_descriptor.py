@@ -30,6 +30,8 @@ class ArgumentDescriptor(ContentDescriptor):
         content = []
         vars_to_fill = []
 
+        however = []
+
         if self.query is not None:
             for key,value in vars.items():
                 if value[0] != '$':
@@ -47,31 +49,72 @@ class ArgumentDescriptor(ContentDescriptor):
                 pass
             else:
                 arguments = self.get_arguments_with_conclusion(conclusion)
+                similar = self.get_similar_arguments(conclusion)
 
                 for arg in arguments:
-                    conclusions = [self.at["arguments"][s]["conclusion"] for s in arg["subargs"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and self.at["arguments"][s]["conclusion"] in self.at["acceptableConclusions"]["0"]]
+                    defeated = []
+                    args = {s: self.at["arguments"][s] for s in arg["subargs"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and s in self.at["extensions"]["0"]}
+                    conclusions = [c["conclusion"] for c in args.values()]
+
+
+                    #args = [self.at["arguments"][s] for s in arg["subargs"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and s in self.at["extensions"]["0"]]
+
+
+
+
+
+                    #conclusions = [self.at["arguments"][s]["conclusion"] for s in arg["subargs"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and self.at["arguments"][s]["conclusion"] in self.at["acceptableConclusions"]["0"]]
 
                     if len(conclusions) == len(premises):
                         content.append(list(set(conclusions)-set([a for a in conclusions for b in premises if a==b or self.compare(a,b)])))
+
+                        for s in similar:
+                            defeated.extend([self.at["arguments"][x]["conclusion"] for x in s["subargs"] for y in args if self.defeats(y,x)])
+                        however.append(defeated)
+
         elif self.query == "[?]":
             # this is just any acceptable conclusion but we need to transform into a list of lists
             content = [[a] for a in self.at["acceptableConclusions"]["0"]]
+            however.append([])
         elif self.query[0] == "[" and self.query[-1] == "]":
             query = self.query[1:-1]
             for conclusion in self.at["acceptableConclusions"]["0"]:
                 if conclusion == query or self.compare(conclusion, query):
                     content.append([conclusion])
+                    however.append([])
 
         to_return = []
 
-        for c in content:
+        for i in range(len(content)):
+            c = content[i]
+            h = however[i]
             if len(c) == len(vars_to_fill):
-                for i in range(len(c)):
+                for j in range(len(c)):
                     # get the text from the dictionary
-                    openers = self.query_dictionary(c[i], move_name)
+                    openers = self.query_dictionary(c[j], move_name)
+
+                    # also get text for the "howevers"
+                    print("However entries: " + str(h))
+                    h2 = [self.query_dictionary(s, move_name) for s in h]
+                    print("HOWEVER: " + str(h2))
+
                     print("Openers: " + str(openers))
+
+                    if h:
+                        for key, value in openers.items():
+                            however_clause = " and ".join([h[key] for h in h2 if key in h])
+
+                            print("However clause: " + however_clause)
+
+                            if however_clause[0].islower():
+                                however_clause = however_clause.capitalize()
+
+                            value = value.lower()
+
+                            openers[key] = however_clause + ", however " + value
+
                     if openers != {}:
-                        to_return.append({"reply": {vars_to_fill[i]: c[i]}, "openers": openers})
+                        to_return.append({"reply": {vars_to_fill[j]: c[j]}, "openers": openers})
 
         # [{"reply":{"p":"<content>"}, "opener":{styleName: str}}]
         return to_return
@@ -117,9 +160,47 @@ class ArgumentDescriptor(ContentDescriptor):
                     if acceptable and arg["conclusion"] not in self.at["acceptableConclusions"]["0"]:
                         continue
 
+                    arg["label"] = label
                     arguments.append(arg)
 
         return arguments
+
+    def get_statement(self, input):
+        matches = re.findall(self.term_regex, input)
+
+        if matches:
+            return matches[0][0]
+        else:
+            return None
+
+    def get_similar_arguments(self, conclusion):
+        """
+        Get arguments with a similar conclusion
+        """
+        arguments = []
+
+        s = self.get_statement(conclusion)
+
+        if s is None:
+            return arguments
+
+        for label, arg in self.at["arguments"].items():
+            conclusion = arg["conclusion"]
+            if conclusion[:len(s)] == s:
+                arguments.append(arg)
+
+        return arguments
+
+
+    def defeats(self, arg1, arg2):
+        arg1 = arg1.strip()
+        arg2 = arg2.strip()
+
+        d1 = "{arg1}>{arg2}".format(arg1=arg1,arg2=arg2)
+        d2 = "{arg2}>{arg1}".format(arg1=arg1,arg2=arg2)
+
+        return d1 in self.at["defeat"] and d2 not in self.at["defeat"]
+
 
     def compare(self, value1, value2):
         matches = re.findall(self.term_regex, value1)
