@@ -55,3 +55,5 @@ class AMQListener(stomp.ConnectionListener):
                 print("Destination: " + d)
                 print("Message: " + body)
                 conn.send(destination='/topic/' + d, body=body, header = {"ttl":30000})
+
+            conn.disconnect()
