@@ -1,5 +1,0 @@
-{
-    "premises": ["a", "b"],
-    "rules": ["[r1] a=>c"],
-    "contrariness": ["b-c"]
-}

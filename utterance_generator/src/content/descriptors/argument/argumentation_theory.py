@@ -118,7 +118,9 @@ class ArgumentationTheory:
             system.add_contrary((pyaspic.Formula(c[0]), pyaspic.Formula(c[1])), contradiction)
 
 
-        theory = pyaspic.ArgumentationTheory(system, kb)
+        theory = pyaspic.ArgumentationTheory(system, kb, engine="http://dungomatic")
+
+
         result = theory.evaluate()
         result["defeat"] = result["attacks"]
 

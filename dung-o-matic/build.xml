@@ -1,0 +1,15 @@
+<project default="compile">
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
+
+    <target name="jar">
+        <mkdir dir="build/jar"/>
+        <jar destfile="/dungomatic/dungomatic.jar" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="tech.arg.DungOMatic"/>
+            </manifest>
+        </jar>
+    </target>
+</project>

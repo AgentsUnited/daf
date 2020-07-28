@@ -1,0 +1,3 @@
+Construction failed because either
+(a) the number of '>' characters in an attack label != 1, or 
+(b) the number of arguments in  an attack label != 2.

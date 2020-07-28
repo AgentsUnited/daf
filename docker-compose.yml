@@ -41,14 +41,19 @@ services:
   build: ./utterance_generator
   container_name: utterance_generator
   depends_on:
-  - toast
+  - dung_o_matic
   env_file:
   - ./utterance_generator/config.env
 
- #toast: required by utterance_generator
- toast:
-  build: ./toast
-  container_name: toast
+ # #toast: required by utterance_generator
+ # toast:
+ #  build: ./toast
+ #  container_name: toast
+
+ #dung-o-matic: required by utterance_generator
+ dung_o_matic:
+   build: ./dung-o-matic
+   container_name: dungomatic
 
  #mongodb: required by utterance_generator
  mongodb:

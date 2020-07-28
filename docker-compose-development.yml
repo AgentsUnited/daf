@@ -46,18 +46,25 @@ services:
   build: ./utterance_generator
   container_name: utterance_generator
   depends_on:
-  - toast
+  - dung_o_matic
   volumes:
   - ./utterance_generator/src:/app
   env_file:
   - ./utterance_generator/config.env
 
- #toast: required by utterance_generator
- toast:
-  build: ./toast
-  container_name: toast
-  ports:
-    - "1234:1234"
+ # #toast: required by utterance_generator
+ # toast:
+ #  build: ./toast
+ #  container_name: toast
+ #  ports:
+ #    - "1234:1234"
+
+ #dung-o-matic: required by utterance_generator
+ dung_o_matic:
+   build: ./dung-o-matic
+   container_name: dungomatic
+   ports:
+     - "8000:80"
 
  #mongodb: required by utterance_generator
  mongodb:
