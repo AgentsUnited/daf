@@ -1,13 +1,19 @@
-[{
-  "protocol": "goalsetting",
-  "descriptors": {
-    "Propose": {
-      "type": "aspic",
-      "expression": "[set_goal(?)]"
-    },
-    "Explain": {
-      "type": "aspic",
-      "expression": "[?]=>$p"
+[
+  {
+    "protocol": "goalsetting",
+    "descriptors": {
+      "Propose": {
+        "type": "aspic",
+        "expression": "[set_{current_goal_type}_goal(?)]"
+      },
+      "JustifyGoal": {
+        "type": "aspic",
+        "expression": "[?]=>$p"
+      },
+      "Breakout": {
+        "type": "aspic",
+        "expression": "[breakout(?)]"
+      }
     }
   }
-}]
+]

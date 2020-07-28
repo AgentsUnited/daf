@@ -1,20 +1,33 @@
 [
   {
-    "protocol": "goalsetting",
     "variables": {
-      "Confirm": {
-        "agreedgoal": {
-          "value": "$p",
-          "clear_on_new": true
-        }
-      },
-      "Reject": {
-        "rejectedgoal": {
+      "RejectGoalTooHigh": {
+        "rejected_too_high": {
           "value": "$p",
           "append": true,
           "clear_on_new": true
         }
+      },
+      "RejectGoalTooLow": {
+        "rejected_too_low": {
+          "value": "$p",
+          "append": true,
+          "clear_on_new": true
+        }
+      },
+      "End": {
+        "{current_goal_type}_goal_set": {
+          "value": "true",
+          "append": false,
+          "clear_on_new": false
+        },
+        "{current_goal_type}_goal": {
+          "value": "$p",
+          "append": false,
+          "clear_on_new": false
+        }
       }
-    }
+    },
+    "protocol": "goalsetting"
   }
 ]

@@ -1,19 +1,34 @@
 [
   {
     "protocol": "goalsetting",
-    "rules": [
-      "achievable(X)=>set_goal(X)",
-      "preferredgoal(X)=>achievable(X)",
-      "lowergoal(X)=>reasonable(X)",
-      "reasonable(X)=>set_goal(X)"
-    ],
     "contrariness": [
-      "rejectedgoal(X)^set_goal(X)",
-      "set_goal(X)-set_goal(Y)"
+      "set_{current_goal_type}_goal(X)-set_{current_goal_type}_goal(Y)"
     ],
-    "preferences": [
-      "lowergoal(X) < preferredgoal(Y)"
+    "preferences": [],
+    "rules": [
+      "current_goal(steps) => recommended(10000)",
+      "recommended(X) => set_long_term_goal(X)",
+      "current_goal(steps), user_age(X), 64<X => suggested(7500)",
+      "current_goal(steps), user_age(X), X<18 => suggested(13000)",
+      "suggested(X) => set_long_term_goal(X)",
+      "rejected_too_high(X) => set_{current_goal_type}_goal([X*0.8])",
+      "rejected_too_low(X) => set_{current_goal_type}_goal([X*1.2])",
+      "rejected_too_high(X) -> ~set_{current_goal_type}_goal(X)",
+      "rejected_too_low(X) -> ~set_{current_goal_type}_goal(X)",
+      "long_term_goal_set(true) -> ~set_long_term_goal(X)",
+      "long_term_goal(X) => set_short_term_goal([X*0.4])",
+      "rejected_times(2) -> ~long_term_goal(X)",
+      "rejected_times(2) -> ~rejected_too_high(X)",
+      "rejected_times(2) -> ~rejected_too_low(X)",
+      "rejected_times(2) => breakout(2)",
+      "current_goal(minutes) => recommended(150)",
+      "current_goal(minutes), user_age(X), 64<X => suggested(150)",
+      "current_goal(minutes), user_age(X), X<18 => suggested(60)"
     ],
-    "premises": []
+    "rule_preferences": [
+      "1 < 4",
+      "1 < 5",
+      "1 < 6"
+    ]
   }
 ]

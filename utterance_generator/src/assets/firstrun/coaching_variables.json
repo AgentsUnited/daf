@@ -1,5 +1,5 @@
 {
-  "preferredgoal": 2000,
-  "lowergoal": 1000,
-  "currentgoal": "steps"
+  "current_goal": "steps",
+  "user_age": "65",
+  "current_goal_type": "long_term"
 }
