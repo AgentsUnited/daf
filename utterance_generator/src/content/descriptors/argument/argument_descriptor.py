@@ -49,19 +49,13 @@ class ArgumentDescriptor(ContentDescriptor):
 
         # replace any skb variables used in the query
         matches = re.findall(self.skb_regex, self.query)
-        print("CURRENT QUERY: " + self.query)
-        print("MATCHES: " + str(matches))
 
         if matches:
             skb = SKB(dialogueID=self.dialogueID)
             for m in matches:
-                print("Searcing skb for " + str(m))
                 value = skb.get_variable_value(m)
-                print("RETURNED VALUE: " + str(value))
                 if m in value:
                     self.query = self.query.replace("{" + m + "}", value[m])
-
-        print("NEW QUERY: " + str(self.query))
 
         if "=>" in self.query:
             elements = self.query.split("=>")
@@ -75,36 +69,25 @@ class ArgumentDescriptor(ContentDescriptor):
                 arguments = self.get_arguments_with_conclusion(conclusion)
                 similar = self.get_similar_arguments(conclusion)
 
-                print("SIMILAR: " + str(similar))
-
                 for arg in arguments:
                     defeated = []
-                    args = {s: self.at["arguments"][s] for s in arg["subargs"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and s in self.at["extensions"]["0"]}
+                    args = {s: self.at["arguments"][s] for s in arg["last_sub_arguments"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and s in self.at["extensions"][0]}
                     conclusions = [c["conclusion"] for c in args.values()]
-
-
-                    #args = [self.at["arguments"][s] for s in arg["subargs"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and s in self.at["extensions"]["0"]]
-
-
-
-
-
-                    #conclusions = [self.at["arguments"][s]["conclusion"] for s in arg["subargs"] if self.is_statement(self.at["arguments"][s]["conclusion"]) and self.at["arguments"][s]["conclusion"] in self.at["acceptableConclusions"]["0"]]
 
                     if len(conclusions) == len(premises):
                         content.append(list(set(conclusions)-set([a for a in conclusions for b in premises if a==b or self.compare(a,b)])))
 
                         for s in similar:
-                            defeated.extend([self.at["arguments"][x]["conclusion"] for x in s["subargs"] if self.defeats(arg["label"], s["label"])])
+                            defeated.extend([self.at["arguments"][x]["conclusion"] for x in s["sub_arguments"] if self.defeats(arg["label"], s["label"])])
                         however.append(defeated)
 
         elif self.query == "[?]":
             # this is just any acceptable conclusion but we need to transform into a list of lists
-            content = [[a] for a in self.at["acceptableConclusions"]["0"]]
+            content = [[a] for a in self.at["acceptableConclusions"][0]]
             however.append([])
         elif self.query[0] == "[" and self.query[-1] == "]":
             query = self.query[1:-1]
-            for conclusion in self.at["acceptableConclusions"]["0"]:
+            for conclusion in self.at["acceptableConclusions"][0]:
                 if conclusion == query or self.compare(conclusion, query):
                     content.append([conclusion])
                     however.append([])
@@ -120,17 +103,11 @@ class ArgumentDescriptor(ContentDescriptor):
                     openers = self.query_dictionary(c[j], move_name)
 
                     # also get text for the "howevers"
-                    print("However entries: " + str(h))
                     h2 = [self.query_dictionary(s, move_name) for s in h]
-                    print("HOWEVER: " + str(h2))
-
-                    print("Openers: " + str(openers))
 
                     if h:
                         for key, value in openers.items():
                             however_clause = " and ".join([h[key] for h in h2 if key in h])
-
-                            print("However clause: " + however_clause)
 
                             if however_clause[0].islower():
                                 however_clause = however_clause.capitalize()
@@ -184,10 +161,9 @@ class ArgumentDescriptor(ContentDescriptor):
         arguments = []
 
         for label,arg in self.at["arguments"].items():
-            if arg["subargs"]:
-                #if self.compare(conclusion, arg["conclusion"]):
+            if arg["sub_arguments"]:
                 if conclusion == arg["conclusion"]:
-                    if acceptable and arg["conclusion"] not in self.at["acceptableConclusions"]["0"]:
+                    if acceptable and arg["conclusion"] not in self.at["acceptableConclusions"][0]:
                         continue
 
                     arg["label"] = label
@@ -227,11 +203,10 @@ class ArgumentDescriptor(ContentDescriptor):
         arg1 = arg1.strip()
         arg2 = arg2.strip()
 
-        d1 = "{arg1}>{arg2}".format(arg1=arg1,arg2=arg2)
-        d2 = "{arg2}>{arg1}".format(arg1=arg1,arg2=arg2)
+        d1 = "({arg1},{arg2})".format(arg1=arg1,arg2=arg2)
+        d2 = "({arg2},{arg1})".format(arg1=arg1,arg2=arg2)
 
         return d1 in self.at["defeat"] and d2 not in self.at["defeat"]
-
 
     def compare(self, value1, value2):
         matches = re.findall(self.term_regex, value1)

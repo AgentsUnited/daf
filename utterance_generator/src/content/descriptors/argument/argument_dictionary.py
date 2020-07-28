@@ -28,8 +28,6 @@ class ArgumentDictionary:
                 for style, statement in entry.items():
                     matches = re.findall(self.var_regex, statement)
 
-                    print("Matches: " + str(matches))
-
                     for m in matches:
                         # clean up the statement by making the vars lowercase
                         statement = statement.replace("{{{var}}}".format(var=m), "{{{newvar}}}".format(newvar=m.lower()))

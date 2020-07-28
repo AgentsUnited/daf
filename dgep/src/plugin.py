@@ -9,7 +9,7 @@ for plugin in [dI for dI in os.listdir('plugin') if os.path.isdir(os.path.join('
         l = line.replace('\n','').split("=")
         config[l[0]] = l[1]
 
-    print(config)
+    #print(config)
 
     a = config['entrypoint'].split('.')
 

@@ -185,16 +185,10 @@ class DGEP(DialogueManager):
                                 "target": data["target"],
                                 "content": d}
 
-            print("data: " + str(data))
-            print("interaction data: " + str(interaction_data))
-
-
             effects = dialogue.perform_interaction(interaction_id, interaction_data)
 
             p = os.path.dirname(os.path.realpath(__file__)) + "/dialogues/" + str(dialogueID) + ".dialogue"
             pickle.dump(dialogue, open(p, "w+"), protocol=2)
-
-            print("Returning effects:" + str(effects))
 
             if dialogue.terminated:
                 status = "terminated"
@@ -273,8 +267,6 @@ class DGEP(DialogueManager):
 
             p = os.path.dirname(os.path.realpath(__file__)) + "/dialogues/" + str(dialogueID) + ".dialogue"
             pickle.dump(dialogue, open(p, "w+"), protocol=2)
-
-            print("Returning effects:" + str(effects))
 
             if dialogue.terminated:
                 status = "terminated"

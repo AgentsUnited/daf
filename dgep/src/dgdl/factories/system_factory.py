@@ -39,7 +39,7 @@ class SystemFactory:
         '''Method to get a system for the given protocol
             Loads a DGDL file for that protocol and builds the system from it'''
 
-        print("LOADING PROTOCOL: " + str(protocol))
+        #print("LOADING PROTOCOL: " + str(protocol))
 
         if protocol[:5] == "yarn.":
             y = Yarn()

@@ -33,7 +33,7 @@ class Send_Effect(Effect):
                             self.vars[variable] = content[key]
 
     def perform(self, system, interaction_data=None):
-        print("Performing send effect")
+        #print("Performing send effect")
         self.update(system, interaction_data)
         if self.identifier in system.ext_uri_map:
             ExternalURI().call(system.ext_uri_map[self.identifier], self.vars)

@@ -7,10 +7,10 @@ class Status_Effect(Effect):
         self.status_type = status
 
     def perform(self, system, interaction_data=None):
-        print("Performing status update")
+        #print("Performing status update")
 
-        print(self.status_type)
+        #print(self.status_type)
 
         if self.status_type == "terminate":
-            print("Terminating the system")
+            #print("Terminating the system")
             system.terminated = True

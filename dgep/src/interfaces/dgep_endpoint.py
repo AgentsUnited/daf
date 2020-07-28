@@ -33,7 +33,7 @@ def invoke(dgep, cmd, data):
         :type data list
     """
 
-    print("INVOKING")
+    #print("INVOKING")
 
     if cmd in list(endpoints.keys()):
         method = endpoints[cmd]["method"]

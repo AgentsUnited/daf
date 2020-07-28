@@ -20,7 +20,7 @@ class ValueRequirement(Requirement):
             if self.negate:
                 self.compare_value = "not " + self.runtime_var
 
-            print("Comparing " + str(self.compare_value) + " with " + str(self.value))
+            #print("Comparing " + str(self.compare_value) + " with " + str(self.value))
 
 
             if self.compare_value is None:
@@ -30,8 +30,8 @@ class ValueRequirement(Requirement):
         else:
             content = interaction_data["content"]
 
-            print("TESTING")
-            print(self.compare_value)
+            #print("TESTING")
+            #print(self.compare_value)
 
             if content:
                 if self.value in list(content.keys()):
@@ -43,17 +43,17 @@ class ValueRequirement(Requirement):
                     if self.negate:
                         self.compare_value = "not " + self.runtime_var
 
-                    print(self.compare_value)
+                    #print(self.compare_value)
 
                     if self.compare_value is None:
-                        print("Returning false because compare value isn't none")
+                        #print("Returning false because compare value isn't none")
                         return True
                     else:
-                        print("Comparing " + str(self.compare_value) + " with " + str(self.value))
+                        #print("Comparing " + str(self.compare_value) + " with " + str(self.value))
                         return self.compare_value.replace('"','') == self.value.replace('"','')
                 else:
-                    print ("Returning false because self.value isn't there")
+                    #print ("Returning false because self.value isn't there")
                     return False
             else:
-                print("Returning false because there's no content")
+                #print("Returning false because there's no content")
                 return False

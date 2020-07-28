@@ -15,15 +15,15 @@ class Save_Effect(Effect):
         else:
             content = interaction_data["content"]
 
-            print("Save effect interaction data content is " + str(content))
-            print("Save effect own content is " + str(self.content))
+            #print("Save effect interaction data content is " + str(content))
+            #print("Save effect own content is " + str(self.content))
 
             if content:
                 if self.content == '...':
                     system.runtime_vars[self.name] = []
                     for k in list(content.keys()):
                         index = int(k[3:])
-                        print("Saving " + content[k] + " at index " + str(index) + " of variable " + self.name)
+                        #print("Saving " + content[k] + " at index " + str(index) + " of variable " + self.name)
                         system.runtime_vars[self.name].insert(index,content[k])
                 else:
                     if "reply" in content:
@@ -38,5 +38,5 @@ class Save_Effect(Effect):
 
                         system.runtime_vars[self.name] = self.content
 
-        print("INTERACTION DATA IN SAVE EFFECT: " + str(interaction_data))
-        print("RUNTIME VARS AFTER SAVE EFFECT:" + str(system.runtime_vars))
+        #print("INTERACTION DATA IN SAVE EFFECT: " + str(interaction_data))
+        #print("RUNTIME VARS AFTER SAVE EFFECT:" + str(system.runtime_vars))

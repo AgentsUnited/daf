@@ -23,7 +23,7 @@ class Conditional:
 
         # First process the requirements; if any evaluates to false, break out
         for r in self.requirements:
-            print ("Testing requirement")
+            #print ("Testing requirement")
             result = r.test(system, interaction_data)
             if not result:
                 break

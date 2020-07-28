@@ -21,14 +21,14 @@ class ActiveMQ(DGEPInterface):
                 self.conn.start()
                 self.conn.connect()
                 self.conn.subscribe(destination='/topic/DGEP/requests', ack='auto', id=1)
-                print("Connected to activemq")
-                print("DGEP-ACTIVEMQ started")
+                #print("Connected to activemq")
+                #print("DGEP-ACTIVEMQ started")
                 break
             except stomp.exception.ConnectFailedException:
                 print("Waiting for ActiveMQ...")
 
     def disconnect(self):
-        print("Disconnect")
+        #print("Disconnect")
         self.conn.disconnect()
 
 
@@ -73,8 +73,8 @@ class DGEPListener(stomp.ConnectionListener):
         else:
             topic = "response"
 
-        print("Sending message:")
-        print(message)
+        #print("Sending message:")
+        #print(message)
 
         conn = stomp.Connection12([(self.amq_host, 61613)], auto_content_length=False)
         conn.start()
@@ -82,6 +82,6 @@ class DGEPListener(stomp.ConnectionListener):
         conn.send(destination='/topic/DGEP/' + topic, body=message, headers = {"ttl": 30000})
 
     def disconnect(self):
-        print("Disconnecting from ActiveMQ")
+        #print("Disconnecting from ActiveMQ")
         self.conn.disconnect()
-        print("ActiveMQ ended")
+        #print("ActiveMQ ended")

@@ -13,13 +13,13 @@ class InspectRequirement(Requirement):
 
     def test(self, system, interaction_data=None):
 
-        print("Commitment stores: " + str(system.commitment_stores))
-        print("Name: " + self.store_name)
+        #print("Commitment stores: " + str(system.commitment_stores))
+        #print("Name: " + self.store_name)
 
         if self.store_name in system.commitment_stores.keys():
             store = system.commitment_stores[self.store_name]
 
-            print("Testing if " + str(self.commitments) + " are in store " + str(store.content))
+            #print("Testing if " + str(self.commitments) + " are in store " + str(store.content))
 
             if all(elem in store.content  for elem in self.commitments):
                 return True

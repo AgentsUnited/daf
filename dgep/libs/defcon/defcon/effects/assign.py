@@ -26,7 +26,7 @@ class Assign(Effect):
                 if p.max == 1:
                     self.participants.append(system.get_participants_in_role(self.user)[0].participantID)
                 else:
-                    print("Warning: cannot assign speaker to a Role that can have >1 participant")
+                    #print("Warning: cannot assign speaker to a Role that can have >1 participant")
             else:
                 for p in system.get_participants_in_role(self.user):
                     self.participants.append(p.participantID)

@@ -78,7 +78,7 @@ class System:
 
         #If max is defined and we have max then don't add
         if len(list(self.participants.keys())) == int(self.num_players["max"]):
-            print("Error: already at the maximum number of players (" + str(self.num_players["max"]) + ")")
+            #print("Error: already at the maximum number of players (" + str(self.num_players["max"]) + ")")
             return
 
         # partipcant number will be used to identify them throughout
@@ -168,11 +168,8 @@ class System:
     def perform_interaction(self, interaction_id, interaction_data):
 
         subsystem = None
-
-        print("SYSTEM: " + str(interaction_data))
-
         if not self.started:
-            print("Error: cannot perform interaction because the dialogue has not started")
+            #print("Error: cannot perform interaction because the dialogue has not started")
             return
 
         if interaction_id in list(self.interactions.keys()):
@@ -201,7 +198,7 @@ class System:
             else:
                 return self.get_available_moves() #Send back the available moves following this interaction
         else:
-            print("Error: unknown interaction")
+            #print("Error: unknown interaction")
 
 
     def get_available_moves(self):
@@ -292,7 +289,6 @@ class System:
         for i in range(0,len(content)):
             c = content[i]
 
-            print("Content in process move: " + str(c))
             variable = None
 
             key = list(c.keys())[0]
@@ -301,8 +297,7 @@ class System:
             if multivar:
                 variable = '...' + str(i)
             else:
-                print("i=" + str(i))
-                print("Interaction targets: " + str(interaction.target))
+
                 variable = interaction.target[i]
                 if variable == '...':
                     multivar = True
@@ -312,14 +307,11 @@ class System:
 
                 if key == "VAR":
 
-                    print("FOUND A VAR")
-                    print(c[key])
-                    print(self.runtime_vars)
 
                     if isinstance(self.runtime_vars[c[key]], list):
                         change_val = False
                         l = self.runtime_vars[c[key]]
-                        print("Variable " + c[key] + ": " + str(l))
+
 
                         s = ""
 

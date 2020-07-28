@@ -29,7 +29,7 @@ class InteractionFactory:
         content = tree.getChildren()[0]
 
         for c in content.getChildren():
-            print("Adding target: " + c.text + " for interaction " + self.interaction.id)
+            #print("Adding target: " + c.text + " for interaction " + self.interaction.id)
             self.interaction.target.append(c.text)
 
     def add_force_target(self, tree):

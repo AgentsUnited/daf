@@ -33,15 +33,12 @@ class Move_Effect(Effect):
         perform = True
         new_content = None
 
-        print("CONTENT: " + self.id + " " + str(self.content))
 
         # if this move does not exist an interaction, do nothing
         if self.id not in list(system.interactions.keys()):
-            print("Warning: move " + self.id + " does not exist as an interaction; skipping")
+            #print("Warning: move " + self.id + " does not exist as an interaction; skipping")
             return
 
-        print("XXXXX")
-        print(interaction_data);
 
         if interaction_data:
             if self.user == "Target":
@@ -49,8 +46,6 @@ class Move_Effect(Effect):
 
             content = interaction_data["content"]["reply"]
 
-            print("Content in move effect interaction data: " + str(content))
-            print("Content in move effect itself: " + str(self.content))
 
             if content:
                 for i in range(0,len(self.content)):
@@ -59,7 +54,6 @@ class Move_Effect(Effect):
                         continue;
 
                     for k in list(content.keys()):
-                        print("Content key: " + k)
                         if len(k) > 3 and k[:3] == '...':
                             if self.content[i][key] == "$...":
                                 if new_content is None:
@@ -75,7 +69,7 @@ class Move_Effect(Effect):
                             else:
                                 self.content[i][key] = content[k]
 
-        print(self.content)
+
 
         if not perform:
             return

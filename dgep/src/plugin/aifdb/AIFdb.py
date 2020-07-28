@@ -7,7 +7,7 @@ class aifdb():
 		self.dialogue_id = 1
 		self.get_methods = {"templates": self.get_templates}
 		self.path = os.path.dirname(os.path.realpath(__file__))
-		print("AIFdb plugin initialised")
+		#print("AIFdb plugin initialised")
 
 	def invoke(self, data={}):
 		if "moveID" in list(data.keys()):

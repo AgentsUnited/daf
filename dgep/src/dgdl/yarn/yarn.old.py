@@ -157,10 +157,10 @@
 {theInteractions}
 }}}}'''.encode('utf-8').replace("_","").format(protocolName=protocolName.replace("_",""),roles=roles,minmax=minmax,playerSpec=playerSpec,initialRule=initialRule,theInteractions=theInteractions)
 
-            print(dgdl)
-            print("XXXXXXXXX")
-            print("XXXXXXXXX")
-            print(dgdl[9593:])
+            #print(dgdl)
+            #print("XXXXXXXXX")
+            #print("XXXXXXXXX")
+            #print(dgdl[9593:])
 
             dgdl_file = open(self.dgdl_dir + '/' + protocolName + '.dgdl', 'w')
             dgdl_file.write(dgdl.encode('utf-8').strip())

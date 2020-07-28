@@ -193,12 +193,11 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
         if data["cmd"] == "new":
             if "params" in data.keys():
                 session_id = self.new_dialogue(data["params"])
-                print("Session ID: " + str(session_id))
+
                 data["params"]["sessionID"] = session_id
                 self.dialogues[session_id] = data["params"]["topic"].lower();
                 data["params"]["protocol"] = data["params"]["topic"].lower();
 
-                print("Sending data to DGEP: " + str(data))
 
         elif data["cmd"] == "interaction" or data["cmd"] == "draftinteraction":
             if "params" in data.keys():
@@ -245,8 +244,6 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
             sessionID = data["sessionID"]
             dialogueID = data["dialogueID"]
 
-            print("Setting dialogue ID " + str(dialogueID) + " for sessionID " + sessionID)
-
             self.set_dialogue_id(sessionID, dialogueID)
 
             tmp = data["moves"]
@@ -257,9 +254,6 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
             self.store_moves(instantiated_moves, dialogueID)
 
             data["clearvars"] = self.get_clear_vars(dialogueID)
-
-            print("Returning data")
-            print(str(data))
         elif "protocol" in data.keys():
             self.initialise_content(data["protocol"])
 
@@ -318,14 +312,10 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
             traceback.print_exc()
 
     def send_message(self, message, topic="FILSTANTIATOR/dialogue_moves"):
-
-        print("UtteranceGenerator sending to " + topic + ":")
-
         conn = stomp.Connection12([(self.amq_host, 61613)], auto_content_length=False)
         conn.start()
         conn.connect('admin','admin', wait=True)
         conn.send(destination='/topic/' + topic, body=message, headers = {"ttl": 30000})
-
 
 def check_first_run():
 

@@ -8,7 +8,7 @@ class ConditionalFactory:
 
         self.conditional = Conditional()
 
-        print("Conditional tree: " + tree.toStringTree())
+        #print("Conditional tree: " + tree.toStringTree())
 
         in_else = False
 

@@ -4,6 +4,7 @@ import re
 import json
 import pymongo
 import os
+import pyaspic
 
 class ArgumentationTheory:
 
@@ -43,8 +44,6 @@ class ArgumentationTheory:
             rules = []
             rule_preferences = []
 
-        print("THE RULES ARE: " + str(rules))
-
         all_consequents = []
         all_antecedents = []
 
@@ -74,13 +73,9 @@ class ArgumentationTheory:
 
         query = list(set(unsatisfiable + contraries))
 
-        print("Query: " + str(query))
-
         #query the skb for values for those antecedents to use as premises
         skb = SKB(dialogueID=self.dialogueID)
         response = skb.get_variable_values(query)
-
-        print("Response: " + str(response))
 
         for variable,value in response.items():
             if value is not None:
@@ -90,15 +85,10 @@ class ArgumentationTheory:
                 else:
                     self.premises.append("{variable}({value})".format(variable=variable, value=value))
 
-        print("Premises: " + str(self.premises));
-
     def evaluate(self):
-        theory = {"rules": [], "rulePrefs": []}
 
-        tmp_rules = {}
-
-
-        print("Rules: " + str(self.rules))
+        system = pyaspic.ArgumentationSystem()
+        kb = pyaspic.KnowledgeBase()
 
         rule_labels = []
 
@@ -106,67 +96,111 @@ class ArgumentationTheory:
             id = i+1
             label = "[r{id}]".format(id=str(id))
             rule_labels.append(label)
-            theory["rules"].append("{label} {rule}".format(label=label, rule=self.rules[i]))
-            tmp_rules[id] = self.rules[i]
+            system.add_rule(pyaspic.Rule.from_string(label, str(self.rules[i])))
 
         for (lp,mp) in self.rulePrefs:
-            theory["rulePrefs"].append(rule_labels[lp] + " < " + rule_labels[mp])
+            system.add_rule_preference((rule_labels[lp], rule_labels[mp]))
 
-        for id1, r1 in tmp_rules.items():
-            for id2, r2 in tmp_rules.items():
-                if id1==id2:
-                    continue
 
-                for k in self.kbPrefs:
-                    k = k.split("<")
-                    lhs = k[0].strip()
-                    rhs = k[1].strip()
+        for p in self.premises:
+            kb.add_premise(pyaspic.Formula(p))
 
-                    if self.get_term(r1.antecedents[0]) == self.get_term(lhs) and self.get_term(r2.antecedents[0]) == self.get_term(rhs):
-                        theory["rulePrefs"].append("[r{id1}] < [r{id2}]".format(id1=id1,id2=id2))
+        for c in self.contrariness:
+            contradiction = False
+            if "-" in c:
+                c = c.split("-")
+                contradiction = True
+            elif "^" in c:
+                c = c.split("^")
+            else:
+                continue
 
-                #if r1.antecedents[0] + "<" + r2.antecedents[0] in self.kbPrefs:
-                    #theory["rulePrefs"].append("[r{id1}] < [r{id2}]".format(id1=id1,id2=id2))
+            system.add_contrary((pyaspic.Formula(c[0]), pyaspic.Formula(c[1])), contradiction)
 
-        theory["premises"] = self.premises
-        theory["semantics"] = "grounded"
-        theory["contrariness"] = self.contrariness
-        theory["kbPrefs"] = self.kbPrefs
-        theory["link"] = "last"
 
-        print("Theory: " + str(theory))
-
-        result = requests.post(self.toast_url, data=json.dumps(theory))
-
-        result = json.loads(result.text)
-
-        self.defeat = result["defeat"]
-
-        # refactor the set of arguments to make them easier to query
-        tmp = {}
-
-        for a in result["arguments"]:
-            matches = re.findall(self.arg_regex, a)
-
-            if len(matches) == 1:
-                arg = list(matches[0])
-
-                label = arg[0].strip()
-
-                if len(arg) == 2 or arg[2]=='':
-                    subargs = []
-                    conclusion = arg[1].strip()
-                else:
-                    subargs = [a.strip() for a in arg[1].split(",")] #use comprehension to trim potential whitespace
-                    conclusion = arg[2].strip()
-
-                tmp[label] = {"subargs": subargs, "conclusion": conclusion}
-
-        result["arguments"] = tmp
-
-        print("AT:" + str(result))
+        theory = pyaspic.ArgumentationTheory(system, kb)
+        result = theory.evaluate()
+        result["defeat"] = result["attacks"]
 
         return result
+
+        #print(theory.evaluate()["acceptableConclusions"])
+        #
+        #
+        # theory = {"rules": [], "rulePrefs": []}
+        #
+        # tmp_rules = {}
+        #
+        #
+        # print("Rules: " + str(self.rules))
+        #
+        # rule_labels = []
+        #
+        # for i in range(len(self.rules)):
+        #     id = i+1
+        #     label = "[r{id}]".format(id=str(id))
+        #     rule_labels.append(label)
+        #     theory["rules"].append("{label} {rule}".format(label=label, rule=self.rules[i]))
+        #     tmp_rules[id] = self.rules[i]
+        #
+        # for (lp,mp) in self.rulePrefs:
+        #     theory["rulePrefs"].append(rule_labels[lp] + " < " + rule_labels[mp])
+        #
+        # for id1, r1 in tmp_rules.items():
+        #     for id2, r2 in tmp_rules.items():
+        #         if id1==id2:
+        #             continue
+        #
+        #         for k in self.kbPrefs:
+        #             k = k.split("<")
+        #             lhs = k[0].strip()
+        #             rhs = k[1].strip()
+        #
+        #             if self.get_term(r1.antecedents[0]) == self.get_term(lhs) and self.get_term(r2.antecedents[0]) == self.get_term(rhs):
+        #                 theory["rulePrefs"].append("[r{id1}] < [r{id2}]".format(id1=id1,id2=id2))
+        #
+        #         #if r1.antecedents[0] + "<" + r2.antecedents[0] in self.kbPrefs:
+        #             #theory["rulePrefs"].append("[r{id1}] < [r{id2}]".format(id1=id1,id2=id2))
+        #
+        # theory["premises"] = self.premises
+        # theory["semantics"] = "grounded"
+        # theory["contrariness"] = self.contrariness
+        # theory["kbPrefs"] = self.kbPrefs
+        # theory["link"] = "last"
+        #
+        # print("Theory: " + str(theory))
+        #
+        # result = requests.post(self.toast_url, data=json.dumps(theory))
+        #
+        # result = json.loads(result.text)
+        #
+        # self.defeat = result["defeat"]
+        #
+        # # refactor the set of arguments to make them easier to query
+        # tmp = {}
+        #
+        # for a in result["arguments"]:
+        #     matches = re.findall(self.arg_regex, a)
+        #
+        #     if len(matches) == 1:
+        #         arg = list(matches[0])
+        #
+        #         label = arg[0].strip()
+        #
+        #         if len(arg) == 2 or arg[2]=='':
+        #             subargs = []
+        #             conclusion = arg[1].strip()
+        #         else:
+        #             subargs = [a.strip() for a in arg[1].split(",")] #use comprehension to trim potential whitespace
+        #             conclusion = arg[2].strip()
+        #
+        #         tmp[label] = {"subargs": subargs, "conclusion": conclusion}
+        #
+        # result["arguments"] = tmp
+        #
+        # print("AT:" + str(result))
+        #
+        # return result
 
 
     def defeats(self, arg1, arg2):

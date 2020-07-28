@@ -32,8 +32,8 @@ def dgep_route_with_no_params(method):
         data = request.get_json()
 
     r = dgep_endpoint.invoke(Rest.dgep, method, data)
-    print("Sending response")
-    print(r)
+    #print("Sending response")
+    #print(r)
     return jsonify(r)
 
 @app.route('/<method>/<parameter>', methods=['GET', 'POST'])
