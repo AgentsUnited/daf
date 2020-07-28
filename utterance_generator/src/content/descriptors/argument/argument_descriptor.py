@@ -1,6 +1,7 @@
 from .. import ContentDescriptor
 from .argumentation_theory import ArgumentationTheory
 from .argument_dictionary import ArgumentDictionary
+from ...skb import SKB
 import re
 
 class ArgumentDescriptor(ContentDescriptor):
@@ -10,6 +11,8 @@ class ArgumentDescriptor(ContentDescriptor):
 
         self.arg_regex = re.compile(r"(A[0-9]+):[ ]*([^-=>\n\r]+)(?:(?:=>|->)([^\n\r]+))?")
         self.term_regex = re.compile(r"(.*)\(([a-zA-z,_0-9? ]+)\)")
+
+        self.skb_regex = re.compile(r"{([^{}]+)}")
 
         self.dictionary = ArgumentDictionary(dialogueID, protocol, "EN")
 
@@ -32,12 +35,33 @@ class ArgumentDescriptor(ContentDescriptor):
 
         however = []
 
+        #TODO: fix bug that stops existing content being passed through
+
+        existing_content = {}
+
         if self.query is not None:
             for key,value in vars.items():
                 if value[0] != '$':
                     self.query = self.query.replace('$' + key, value)
+                    existing_content[key] = value
                 else:
                     vars_to_fill.append(key)
+
+        # replace any skb variables used in the query
+        matches = re.findall(self.skb_regex, self.query)
+        print("CURRENT QUERY: " + self.query)
+        print("MATCHES: " + str(matches))
+
+        if matches:
+            skb = SKB(dialogueID=self.dialogueID)
+            for m in matches:
+                print("Searcing skb for " + str(m))
+                value = skb.get_variable_value(m)
+                print("RETURNED VALUE: " + str(value))
+                if m in value:
+                    self.query = self.query.replace("{" + m + "}", value[m])
+
+        print("NEW QUERY: " + str(self.query))
 
         if "=>" in self.query:
             elements = self.query.split("=>")
@@ -50,6 +74,8 @@ class ArgumentDescriptor(ContentDescriptor):
             else:
                 arguments = self.get_arguments_with_conclusion(conclusion)
                 similar = self.get_similar_arguments(conclusion)
+
+                print("SIMILAR: " + str(similar))
 
                 for arg in arguments:
                     defeated = []
@@ -69,7 +95,7 @@ class ArgumentDescriptor(ContentDescriptor):
                         content.append(list(set(conclusions)-set([a for a in conclusions for b in premises if a==b or self.compare(a,b)])))
 
                         for s in similar:
-                            defeated.extend([self.at["arguments"][x]["conclusion"] for x in s["subargs"] for y in args if self.defeats(y,x)])
+                            defeated.extend([self.at["arguments"][x]["conclusion"] for x in s["subargs"] if self.defeats(arg["label"], s["label"])])
                         however.append(defeated)
 
         elif self.query == "[?]":
@@ -114,7 +140,11 @@ class ArgumentDescriptor(ContentDescriptor):
                             openers[key] = however_clause + ", however " + value
 
                     if openers != {}:
-                        to_return.append({"reply": {vars_to_fill[j]: c[j]}, "openers": openers})
+                        reply = {vars_to_fill[j]: c[j]}
+
+                        for k,v in existing_content.items():
+                            reply[k] = v
+                        to_return.append({"reply": reply, "openers": openers})
 
         # [{"reply":{"p":"<content>"}, "opener":{styleName: str}}]
         return to_return
@@ -187,6 +217,7 @@ class ArgumentDescriptor(ContentDescriptor):
         for label, arg in self.at["arguments"].items():
             conclusion = arg["conclusion"]
             if conclusion[:len(s)] == s:
+                arg["label"] = label
                 arguments.append(arg)
 
         return arguments

@@ -19,43 +19,70 @@ System{GoalSetting{
   interaction{Propose, $User, {p}, "$p",
     {
       assign(User, speaker)
-      & move(add, next, Confirm, $Agent, {p}, User)
-      & move(add, next, Reject, $Agent, {p}, User)
-      & move(add, next, Challenge, $Agent, {p}, User)
+      & move(add, next, AcceptGoal, $Agent, {p}, User)
+      & move(add, next, ChallengeGoal, $Agent, {p}, User)
+      & move(add, next, RejectGoalTooHigh, $Agent, {p}, User)
+			& move(add, next, RejectGoalTooLow, $Agent, {p}, User)
 			& save({p}, $AgreedGoal$)
     }
   }
 
-  interaction{Confirm, $Agent, {p}, "$p",
+  interaction{AcceptGoal, $Agent, {p}, "$p",
     {
       assign(Agent, speaker)
-			& move(add, next, End, $User, {p}, Agent)
+			& move(add, next, GoalAccepted, $User, {p}, Agent)
     }
   }
 
-  interaction{Reject, $Agent, {p}, "$p",
-    {
-      assign(Agent, speaker)
-      & move(add, next, Propose, $User, {q}, Agent)
-    }
-  }
+	interaction{ChallengeGoal, $Agent, {p}, "$p",
+		{
+			assign(Agent, speaker)
+			& move(add, next, JustifyGoal, $User, {p,q}, Agent)
+		}
+	}
 
-  interaction{Challenge, $Agent, {p}, "$p",
-    {
-      assign(Agent, speaker)
-      & move(add, next, Explain, $User, {p,q}, Agent)
-    }
-  }
+	interaction{JustifyGoal, $User, {p,q}, "$q",
+		{
+			assign(User, speaker)
+			& move(add, next, AcceptGoal, $Agent, {p}, User)
+			& move(add, next, RejectGoalTooHigh, $Agent, {p}, User)
+			& move(add, next, RejectGoalTooLow, $Agent, {p}, User)
+		}
+	}
+
+	interaction{RejectGoalTooHigh, $Agent, {p}, "$p",
+		{
+			assign(Agent, speaker)
+			& move(add, next, Propose, $User, {q}, Agent)
+			& move(add, next, Breakout, $User, {p}, Agent)
+		}
+	}
+
+	interaction{RejectGoalTooLow, $Agent, {p}, "$p",
+		{
+			assign(Agent, speaker)
+			& move(add, next, Propose, $User, {q}, Agent)
+			& move(add, next, Breakout, $User, {p}, Agent)
+		}
+	}
+
+	interaction{Breakout, $User, {p}, "$p",
+		{
+			move(add, next, End, $User, {$AgreedGoal$}, Agent)
+		}
+
+	}
+
+	interaction{GoalAccepted, $User, {p}, "$p",
+		{
+			move(add, next, End, $User, {p}, Agent)
+		}
+
+	}
 
 	interaction{End, $User, {p}, "$p",
 		{
 			status(terminate, GoalSettingMain)
 		}
 	}
-
-  interaction{Explain, $User, {p,q}, "$q",
-    {
-      move(add, next, Propose, $User, {$AgreedGoal$}, Agent)
-    }
-  }
 }}

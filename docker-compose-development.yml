@@ -56,6 +56,8 @@ services:
  toast:
   build: ./toast
   container_name: toast
+  ports:
+    - "1234:1234"
 
  #mongodb: required by utterance_generator
  mongodb:

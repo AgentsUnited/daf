@@ -157,8 +157,22 @@ public class ArgumentationTheory {
             Set<String> ants = r.getAntecedents();
             HashMap<String, HashSet<Argument>> antFF = new HashMap<>();
 
+            Set<String> comparisons = new HashSet<>();
+
             /* Loop through the antecedents of this rule */
             for (String ant : r.getAntecedents()) {
+
+                /*If this antecedent is a mathematical comparison, we treat it differently */
+                if(ant.contains("<") || ant.contains(">")){
+                  if(this.checkComparison(ant)){
+                    comparisons.add(ant);
+                    continue;
+                  }else{
+                    System.out.println(ant + " is false");
+                    break;
+                  }
+                }
+
                 /* Loop through the already existing arguments */
                 for (Argument a : args) {
                     selfSupport = false;
@@ -180,6 +194,8 @@ public class ArgumentationTheory {
             Set<String> keys = antFF.keySet();
 
             List<HashSet<Argument>> antSets = new LinkedList<>();
+
+            ants.removeAll(comparisons);
 
             /* If every antecedent has at least one fulfillment set, we can build at least one argument */
             if (keys.containsAll(ants)) {
@@ -231,6 +247,43 @@ public class ArgumentationTheory {
         /* Anchor step - if the output size is the same as the input, we've added no more arguments so return the input
             else, recursively call this method again */
         return (args.size() == tempArgs.size()) ? args : this.constructArguments(args);
+    }
+
+    /***
+    * Method to carry out a mathematical comparison expressed as a > b or a < b
+    * @param comparison the string representation of the comparison
+    * @return
+    **/
+    private boolean checkComparison(String comparison){
+      String symbol;
+
+      if(comparison.contains("<")){
+        symbol = "<";
+      }else if(comparison.contains(">")){
+        symbol = ">";
+      }else{
+        return false; //shouldn't really get here...
+      }
+
+      String[] parts = comparison.split(symbol);
+      float lhs, rhs;
+      try{
+        lhs = Float.valueOf(parts[0]);
+      }catch(Exception e){
+        lhs = 0;
+      }
+
+      try{
+        rhs = Float.valueOf(parts[1]);
+      }catch(Exception e){
+        rhs = 0;
+      }
+
+      if(symbol.equals(">")){
+        return (lhs > rhs);
+      }else{
+        return (lhs < rhs);
+      }
     }
 
     /**

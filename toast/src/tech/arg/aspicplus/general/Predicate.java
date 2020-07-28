@@ -23,6 +23,8 @@ public class Predicate {
     public static String DELIM = ",";
     private boolean instantiable = true;
 
+    private List<Expression> expressions = new ArrayList<>();
+
     /**
      * Default constructor
      *
@@ -83,11 +85,28 @@ public class Predicate {
 
         /* An extra check to ensure we have a name and content */
         if (vars != null && this.name != null) {
-            content = Arrays.asList(this.split_clean(DELIM, vars));
+            content = this.processContent(vars);
+            //content = Arrays.asList(this.split_clean(DELIM, vars));
         } else {
             this.name = this.predicate;
             this.instantiable = false;
         }
+    }
+
+    private List<String> processContent(String vars){
+      List<String> toReturn = new ArrayList<>();
+
+      for(String v : this.split_clean(DELIM,vars)){
+        /* Test if this var is an arithmentic expression */
+        Pattern p = Pattern.compile("\\[([^*+\\-\\/]+[ ]?[*+\\-\\/][ ]?[^*+\\-\\/]+)\\]");
+        Matcher m = p.matcher(v);
+
+        if(m.find()){
+          this.expressions.add(new Expression(m.group(1)));
+        }
+        toReturn.add(v);
+      }
+      return toReturn;
     }
 
     /**
@@ -145,15 +164,40 @@ public class Predicate {
         /* First get all the "non-variables" from this predicate */
         for (int i = 0; i < this.content.size(); i++) {
             String c = this.content.get(i);
+
+            if(c.charAt(0)=='['){
+              continue;
+            }
+
             if (Character.isLowerCase(c.charAt(0)) || Character.isDigit(c.charAt(0))) {
                 p.content.set(i, c);
             }
         }
 
+        for(Expression e : this.expressions){
+          for(String k : mappings.keySet()){
+            float num;
+            try{
+              num = Float.valueOf(mappings.get(k));
+            }catch(Exception ex){
+              num = 0;
+            }
+            e.updateLHS(k, num);
+            e.updateRHS(k, num);
+          }
+          mappings.put("[" + e.getExpression() + "]", String.valueOf(e.evaluate()));
+        }
+
+        System.out.println(mappings);
+        System.out.println(content);
+
+
         for (String k : mappings.keySet()) {
             // String[] mapping = m.split("=");
             if (this.content.contains(k)) {
                 p.content.set(this.content.indexOf(k), mappings.get(k));
+            }else{
+
             }
         }
 

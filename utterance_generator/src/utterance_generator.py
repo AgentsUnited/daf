@@ -2,6 +2,7 @@ import pymongo
 import re
 from content.descriptors import *
 import os
+from content.skb import SKB
 
 class UtteranceGenerator:
 
@@ -92,6 +93,8 @@ class UtteranceGenerator:
                     #var = result["variables"][moveName]
                     #name = var["name"]
                     value = var["value"]
+
+                    name = SKB(dialogueID=self.dialogueID).fill_skb_variables(name)
 
                     append = False
 

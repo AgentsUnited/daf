@@ -1,0 +1,61 @@
+System{GoalSetting{
+	/* Description: A game to discuss a physical activity goal */
+
+	turns{magnitude:multiple, ordering:liberal}
+	roles{Person}
+	players{min:2, max:3}
+	player{id:Agent, roles{Person}, max:2, min:1}
+	player{id:User, roles{Person}, max:1, min:1}
+
+	backtrack{on}
+
+  rule{id:StartingRule, scope:initial,
+    {
+        assign(Agent, speaker)
+        & move(add, next, Propose, $User, {p}, Agent)
+    }
+  }
+
+  interaction{Propose, $User, {p}, "$p",
+    {
+      assign(User, speaker)
+      & move(add, next, Confirm, $Agent, {p}, User)
+      & move(add, next, Reject, $Agent, {p}, User)
+      & move(add, next, Challenge, $Agent, {p}, User)
+			& save({p}, $AgreedGoal$)
+    }
+  }
+
+  interaction{Confirm, $Agent, {p}, "$p",
+    {
+      assign(Agent, speaker)
+			& move(add, next, End, $User, {p}, Agent)
+    }
+  }
+
+  interaction{Reject, $Agent, {p}, "$p",
+    {
+      assign(Agent, speaker)
+      & move(add, next, Propose, $User, {q}, Agent)
+    }
+  }
+
+  interaction{Challenge, $Agent, {p}, "$p",
+    {
+      assign(Agent, speaker)
+      & move(add, next, Explain, $User, {p,q}, Agent)
+    }
+  }
+
+	interaction{End, $User, {p}, "$p",
+		{
+			status(terminate, GoalSettingMain)
+		}
+	}
+
+  interaction{Explain, $User, {p,q}, "$q",
+    {
+      move(add, next, Propose, $User, {$AgreedGoal$}, Agent)
+    }
+  }
+}}

@@ -87,8 +87,11 @@ public class RuleSet {
             for (Map<String, String> variableMap : new VariableMapping(r.getVariables(), language)) {
                 String instantiatedRule = r.instantiate(variableMap);
 
+                System.out.println(instantiatedRule);
+
                 String currentLabel = r.getLabel();
                 String newLabel = "r" + (specificRules.size() + 1);
+                System.out.println(newLabel);
                 specificRules.add(new Rule(newLabel, instantiatedRule, Rule.SPECIFIC));
                 if (ruleMap.containsKey(currentLabel)) {
                     ruleMap.get(currentLabel).add(newLabel);

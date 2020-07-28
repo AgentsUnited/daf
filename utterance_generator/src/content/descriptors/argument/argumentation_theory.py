@@ -12,6 +12,8 @@ class ArgumentationTheory:
 
         self.arg_regex = re.compile(r"(A[0-9]+):[ ]*([^-=>\n\r]+)(?:(?:=>|->)([^\n\r]+))?")
 
+        self.skb_regex = re.compile(r"{([^{}]+)}")
+
         self.rules = []
         self.premises = []
         self.contrariness = []
@@ -30,21 +32,39 @@ class ArgumentationTheory:
         data = col.find_one({'protocol': protocol})
 
         if data is not None:
-            rules = data["rules"]
-            self.contrariness = data["contrariness"]
-            self.kbPrefs = data["preferences"]
-            #self.premises = self.get_premises(protocol)
+            skb = SKB(dialogueID=self.dialogueID) # efficiency saver
+            s = skb.fill_skb_variables
+            rules = [s(r) for r in data["rules"]]
+            self.contrariness = [s(c) for c in data["contrariness"]]
+            self.kbPrefs = [s(p) for p in data["preferences"]]
+            rule_preferences = data["rule_preferences"]
+
         else:
             rules = []
+            rule_preferences = []
+
+        print("THE RULES ARE: " + str(rules))
 
         all_consequents = []
         all_antecedents = []
+
+        current_rule = 0
 
         for r in rules:
             rule = Rule(r)
             all_consequents.append(rule.consequent)
             all_antecedents.extend(rule.antecedents)
             self.rules.append(rule)
+
+        num_rules = len(self.rules)
+
+        for p in rule_preferences:
+            parts = p.split("<")
+            lp = int(parts[0].strip())
+            mp = int(parts[1].strip())
+
+            if num_rules > lp and num_rules > mp:
+                self.rulePrefs.append((lp,mp))
 
         # get a set of all antecedents that can't be satisfied by rules
         unsatisfiable = list(set([self.get_term(a) for a in all_antecedents if a not in all_consequents]))
@@ -80,10 +100,17 @@ class ArgumentationTheory:
 
         print("Rules: " + str(self.rules))
 
+        rule_labels = []
+
         for i in range(len(self.rules)):
             id = i+1
-            theory["rules"].append("[r{id}] {rule}".format(id=str(id), rule=self.rules[i]))
+            label = "[r{id}]".format(id=str(id))
+            rule_labels.append(label)
+            theory["rules"].append("{label} {rule}".format(label=label, rule=self.rules[i]))
             tmp_rules[id] = self.rules[i]
+
+        for (lp,mp) in self.rulePrefs:
+            theory["rulePrefs"].append(rule_labels[lp] + " < " + rule_labels[mp])
 
         for id1, r1 in tmp_rules.items():
             for id2, r2 in tmp_rules.items():
@@ -105,7 +132,7 @@ class ArgumentationTheory:
         theory["semantics"] = "grounded"
         theory["contrariness"] = self.contrariness
         theory["kbPrefs"] = self.kbPrefs
-        theory["link"] = "weakest"
+        theory["link"] = "last"
 
         print("Theory: " + str(theory))
 

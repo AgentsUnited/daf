@@ -78,6 +78,9 @@ public class ToastResource extends ServerResource {
                 assumptions = processed.get("assumptions");
                 kbPrefs = processed.get("kbPrefs");
                 rules = processed.get("rules");
+
+                System.out.println("ASPICRULES: " + rules.toString());
+
                 rulePrefs = processed.get("rulePrefs");
                 contrariness = processed.get("contrariness");
             }

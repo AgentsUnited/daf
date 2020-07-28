@@ -29,12 +29,15 @@ public class Rule {
 
     public String arrow;
 
+    private List<String> comparisons;
+
     public Rule(String label, String rule, int type) {
         this.variables = new HashSet<>();
         this.rule = rule;
         this.predicates = new HashSet<>();
         this.nonPredicateAntecedents = new HashSet<>();
         this.label = label;
+        this.comparisons = new ArrayList<>();
         if (type == GENERAL) {
             this.process();
         }
@@ -110,7 +113,15 @@ public class Rule {
                     variables.addAll(predicate.getVariables());
                     this.predicates.add(predicate);
                 } else {
-                    this.nonPredicateAntecedents.add(antecedent);
+
+                    /* Check if it's an arithmetic comparison */
+                    if(antecedent.contains("<") || antecedent.contains(">")){
+                      this.comparisons.add(antecedent);
+                    }else{
+                      this.nonPredicateAntecedents.add(antecedent);
+                    }
+
+
                 }
             } catch (PredicateInstantiationError e) {
 
@@ -135,6 +146,15 @@ public class Rule {
             instantiatedPredicates.add(a);
         }
 
+        for(String c : this.comparisons){
+          String tmp = c;
+          for(String v : variableMapping.keySet()){
+            if(c.contains(v)){
+              tmp = tmp.replace(v,variableMapping.get(v));
+            }
+          }
+          instantiatedPredicates.add(tmp);
+        }
         StringBuilder toReturn = new StringBuilder();
 
         for (int i = 0; i < instantiatedPredicates.size() - 1; i++) {
@@ -145,6 +165,8 @@ public class Rule {
 
         String cons = (this.consequent == null) ? strConsequent : this.consequent.instantiate(variableMapping).toString();
         toReturn.append(cons);
+
+        System.out.println(toReturn.toString());
 
         return toReturn.toString();
     }

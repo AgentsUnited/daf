@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import pymongo
+import re
 
 class SKB:
     """
@@ -16,6 +17,8 @@ class SKB:
     def __init__(self, auth_token=None, dialogueID=None):
         self.server = os.getenv('CONTENT_DATABASE')
         self.standard_headers = {'content-type': 'application/json', 'accept': '*/*'}
+
+        self.variable_regex = re.compile(r"{([^{}]+)}")
 
         if auth_token is None:
             if dialogueID is None:
@@ -79,6 +82,21 @@ class SKB:
                     to_return[key] = value
 
             return to_return
+
+    def fill_skb_variables(self, input):
+        '''
+        Fills any {string} pattern with the value of string in the skb
+        '''
+        matches = re.findall(self.variable_regex, input)
+
+        if matches:
+            values = self.get_variable_values(matches)
+
+            for k,v in values.items():
+                input = input.replace("{" + k + "}", v)
+        return input
+
+
 
     def mock_login(self):
         """
