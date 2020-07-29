@@ -12,13 +12,27 @@ public class DungOMatic{
 
 
   public DungOMatic(String args, String attacks, String semantics){
-    this.args  = new HashSet<>(Arrays.asList(args.split(",")));
-    this.attacks = new HashSet<>(Arrays.asList(attacks.split(";")));
+
+    if(args != null){
+      this.args = new HashSet<>(Arrays.asList(args.split(",")));
+    }else{
+      this.args = new HashSet<>();
+    }
+
+    if(attacks != null){
+      this.attacks = new HashSet<>(Arrays.asList(attacks.split(";")));
+    }else{
+      this.attacks = new HashSet<>();
+    }
+
+    System.err.println("New hashsets created");
 
     this.strAttacks = new HashSet<>();
 
-    for(String att : attacks.split(";")){
-      this.strAttacks.add(att.substring(1, att.length()-1).replace(",",">"));
+    if(attacks != null){
+      for(String att : attacks.split(";")){
+        this.strAttacks.add(att.substring(1, att.length()-1).replace(",",">"));
+      }
     }
     this.semantics = semantics;
   }
@@ -87,6 +101,13 @@ public class DungOMatic{
       System.err.println("USAGE: dungomatic args attacks semantics");
       System.exit(1);
     }else{
+
+      if(args[0].equalsIgnoreCase("none")) args[0] = null;
+      if(args[1].equalsIgnoreCase("none")) args[1] = null;
+
+      System.err.println(args[0]);
+      System.err.println(args[1]);
+
       System.out.println(new DungOMatic(args[0], args[1], args[2]).evaluate());
     }
   }
