@@ -20,6 +20,8 @@ class SKB:
 
         self.variable_regex = re.compile(r"{([^{}]+)}")
 
+        auth_token="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MDAxQGNvdW5jaWwtb2YtY29hY2hlcy5ldSIsImlhdCI6MTU5NjIyOTgwNn0.0OLdmIET4QBqk2nt970dFXx_ki8DikHT1_JjQoAnKwBGg5fna__g4Sg4cH1b2kGdQBzMofhjH7LwnJ0odEXFZg"
+
         if auth_token is None:
             if dialogueID is None:
                 #self.mock_login()
@@ -93,7 +95,7 @@ class SKB:
             values = self.get_variable_values(matches)
 
             for k,v in values.items():
-                input = input.replace("{" + k + "}", v)
+                input = input.replace("{" + k + "}", str(v))
         return input
 
 
