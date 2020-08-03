@@ -71,7 +71,7 @@ class ArgumentationTheory:
         #get premises to satisfy the lhs of contraries
         contraries = list(set([self.get_term(c.split("^")[0].strip()) for c in self.contrariness if "^" in c ]))
 
-        query = list(set(unsatisfiable + contraries))
+        query = [q for q in list(set(unsatisfiable + contraries)) if "<" not in q]
 
         #query the skb for values for those antecedents to use as premises
         skb = SKB(dialogueID=self.dialogueID)
