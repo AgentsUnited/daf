@@ -281,6 +281,11 @@ daf_test_protocol.select_protocol = function(){
   for(var i=0;i<protocol["players"].length;i++){
     var player = protocol["players"][i];
 
+    // var player_id = player["id"].toLowerCase();
+
+
+
+
     var id = player["id"];
     var min = parseInt(player["min"]);
     var max = parseInt(player["max"]);
@@ -292,7 +297,15 @@ daf_test_protocol.select_protocol = function(){
 
     var row_div = create_row_div();
 
-    var s = $("<select />").attr("id", id).css("width","75px");
+    var type;
+
+    if(id.toLowerCase().startsWith("agent")){
+      type = "agent";
+    }else{
+      type = "user";
+    }
+
+    var s = $("<select />").attr("id", id).css("width","75px").addClass(type);
 
     for(var j=0;j<max;j++){
       var o = $("<option />").attr("value", j).html((j+1));
@@ -323,40 +336,83 @@ daf_test_protocol.set_participants = function(){
   var d = create_content_div("Brilliant! Now we need to decide the names and personalities of the Agents:<br /><br />");
   num_agents = parseInt($("#Agent").children("option:selected").val()) + 1;
 
-  for(var i=0;i<num_agents;i++){
-    var t = create_table_div("50%");
-    var row_div = create_row_div();
+  $(".agent").each(function(){
+    var num_agents = parseInt($(this).children("option:selected").val()) + 1;
+    var id = $(this).attr("id");
 
-    row_div.append($("<div />").css("font-weight","bold").html("Agent " + (i+1) + ":"));
-    t.append(row_div);
+    for(var i=0;i<num_agents;i++){
+      var t = create_table_div("50%");
+      var row_div = create_row_div();
 
-    row_div = create_row_div();
+      var agent_num = i+1;
 
-    var id = "agent_" + i;
+      row_div.append($("<div />").css("font-weight","bold").html(id + " (" + agent_num + "):"));
+      t.append(row_div);
 
-    var name_label = $("<div />").html("Name:").css("align-self","center");
+      row_div = create_row_div();
 
-    var name_input = $("<input />").attr("id", id + "_name").css("width", "200px");
-    var name = $("<div />").append(name_input);
+      var name_label = $("<div />").html("Name:").css("align-self","center");
 
-    var personality_label = $("<div />").html("Personality:");
+      var name_input = $("<input />").attr("id", id + "_" + agent_num + "_name").addClass("agentspec").css("width", "200px").attr("data-type",id);
+      var name = $("<div />").append(name_input);
 
-    var personality_sel = $("<select />").attr("id",id + "_personality").css("width","200px");
-    personality_sel.append($("<option />").attr("value","socratic").html("Socratic"))
-                   .append($("<option />").attr("value","authoritative").html("Authoritative"));
+      var personality_label = $("<div />").html("Personality:");
 
-    var personality = $("<div />").append(personality_sel);
+      var personality_sel = $("<select />").attr("id", id + "_" + agent_num + "_personality").css("width","200px").addClass("agentspec");
+      personality_sel.append($("<option />").attr("value","socratic").html("Socratic"))
+                     .append($("<option />").attr("value","authoritative").html("Authoritative"));
 
-    row_div.append(name_label).append(name);
-    t.append(row_div);
+      var personality = $("<div />").append(personality_sel);
 
-    row_div = create_row_div();
+      row_div.append(name_label).append(name);
+      t.append(row_div);
 
-    row_div.append(personality_label).append(personality);
-    t.append(row_div);
+      row_div = create_row_div();
 
-    d.append(t);
-  }
+      row_div.append(personality_label).append(personality);
+      t.append(row_div);
+
+      d.append(t);
+    }
+
+
+
+  });
+
+  // for(var i=0;i<num_agents;i++){
+  //   var t = create_table_div("50%");
+  //   var row_div = create_row_div();
+  //
+  //   row_div.append($("<div />").css("font-weight","bold").html("Agent " + (i+1) + ":"));
+  //   t.append(row_div);
+  //
+  //   row_div = create_row_div();
+  //
+  //   var id = "agent_" + i;
+  //
+  //   var name_label = $("<div />").html("Name:").css("align-self","center");
+  //
+  //   var name_input = $("<input />").attr("id", id + "_name").css("width", "200px");
+  //   var name = $("<div />").append(name_input);
+  //
+  //   var personality_label = $("<div />").html("Personality:");
+  //
+  //   var personality_sel = $("<select />").attr("id",id + "_personality").css("width","200px");
+  //   personality_sel.append($("<option />").attr("value","socratic").html("Socratic"))
+  //                  .append($("<option />").attr("value","authoritative").html("Authoritative"));
+  //
+  //   var personality = $("<div />").append(personality_sel);
+  //
+  //   row_div.append(name_label).append(name);
+  //   t.append(row_div);
+  //
+  //   row_div = create_row_div();
+  //
+  //   row_div.append(personality_label).append(personality);
+  //   t.append(row_div);
+  //
+  //   d.append(t);
+  // }
 
   var t = create_table_div("50%");
   var row_div = create_row_div();
@@ -373,16 +429,22 @@ daf_test_protocol.set_participants = function(){
 
 daf_test_protocol.save_participants = function(){
 
-  /* Populate the message with the participants */
-  for(var i=0;i<num_agents;i++){
-    var name = $("#agent_" + i + "_name").val();
-    var personality = $("#agent_" + i + "_personality").children("option:selected").val();
-
-    dgep_msg.params.participants.push({name: name, player: "Agent"});
-    dgep_msg.params.filstantiator[name] = {personality: personality};
-
+  $("input.agentspec").each(function(){
+    dgep_msg.params.participants.push({name: $(this).val(), player: $(this).attr("data-type")});
     console.log(dgep_msg);
-  }
+  });
+
+
+  /* Populate the message with the participants */
+  // for(var i=0;i<num_agents;i++){
+  //   var name = $("#agent_" + i + "_name").val();
+  //   var personality = $("#agent_" + i + "_personality").children("option:selected").val();
+  //
+  //   dgep_msg.params.participants.push({name: name, player: "Agent"});
+  //   dgep_msg.params.filstantiator[name] = {personality: personality};
+  //
+  //   console.log(dgep_msg);
+  // }
 
   var d = create_content_div("Great! Last thing - what is the name of the user?<br /><br />");
 
