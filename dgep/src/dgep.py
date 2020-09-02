@@ -100,6 +100,7 @@ class DGEP(DialogueManager):
 
                 to_return["dialogueID"] = len(self.dialogues)
                 to_return["moves"] = s.get_available_moves()
+                to_return["history"] = []
 
                 return to_return
             else:
@@ -154,7 +155,8 @@ class DGEP(DialogueManager):
 
             moves = {"dialogueID": dialogueID,
                      "moves": dialogue.get_available_moves(),
-                     "status": status
+                     "status": status,
+                     "history": dialogue.get_dialogue_history()
                      }
 
             #m = dialogue.get_available_moves()
@@ -195,7 +197,10 @@ class DGEP(DialogueManager):
             else:
                 status = "active"
 
-            effects = {"dialogueID": dialogueID, "status": status, "moves": effects}
+            effects = {"dialogueID": dialogueID,
+                       "status": status,
+                       "moves": effects,
+                       "history": dialogue.get_dialogue_history()}
 
             #if dialogue.terminated:
             #    effects = {"dialogueID": dialogueID, "vars": dialogue.runtime_vars}
