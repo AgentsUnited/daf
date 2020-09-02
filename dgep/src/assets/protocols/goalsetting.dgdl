@@ -2,82 +2,97 @@ System{GoalSetting{
 	/* Description: A game to discuss a physical activity goal */
 
 	turns{magnitude:multiple, ordering:liberal}
-	roles{Person}
+	roles{Person,Agent}
 	players{min:2, max:3}
-	player{id:Agent, roles{Person}, max:2, min:1}
-	player{id:User, roles{Person}, max:1, min:1}
+	player{id:AgentOne, roles{Person,Agent}, max:1, min:1}
+	player{id:AgentTwo, roles{Person, Aget}, max:1, min:1}
+	player{id:User, roles{Person,Agent}, max:1, min:1}
 
 	backtrack{on}
 
   rule{id:StartingRule, scope:initial,
     {
-        assign(Agent, speaker)
-        & move(add, next, Propose, $User, {p}, Agent)
+        assign(AgentOne, speaker)
+        & move(add, next, PrePropose, $User, AgentOne)
     }
   }
 
-  interaction{Propose, $User, {p}, "$p",
+	interaction{PrePropose, $User, "",
+		{
+			move(add, next, Propose, $User, {p}, AgentOne)
+		}
+	}
+
+  interaction{Propose, $User, {p}, "argument([set_goal(?)])",
     {
       assign(User, speaker)
-      & move(add, next, AcceptGoal, $Agent, {p}, User)
-      & move(add, next, ChallengeGoal, $Agent, {p}, User)
-      & move(add, next, RejectGoalTooHigh, $Agent, {p}, User)
-			& move(add, next, RejectGoalTooLow, $Agent, {p}, User)
+      & move(add, next, AcceptGoal, $AgentOne, {p}, User)
+      & move(add, next, ChallengeGoal, $AgentOne, {p}, User)
+      & move(add, next, RejectGoalTooHigh, $AgentOne, {p}, User)
+			& move(add, next, RejectGoalTooLow, $AgentOne, {p}, User)
 			& save({p}, $AgreedGoal$)
     }
   }
 
-  interaction{AcceptGoal, $Agent, {p}, "$p",
+  interaction{AcceptGoal, $AgentOne, {p}, "$p",
     {
-      assign(Agent, speaker)
-			& move(add, next, GoalAccepted, $User, {p}, Agent)
+      assign(AgentOne, speaker)
+			& move(add, next, GoalAccepted, $User, {p}, AgentOne)
     }
   }
 
-	interaction{ChallengeGoal, $Agent, {p}, "$p",
+	interaction{ChallengeGoal, $AgentOne, {p}, "$p",
 		{
-			assign(Agent, speaker)
-			& move(add, next, JustifyGoal, $User, {p,q}, Agent)
+			assign(AgentOne, speaker)
+			& move(add, next, JustifyGoal, $User, {p,q}, AgentOne)
 		}
 	}
 
-	interaction{JustifyGoal, $User, {p,q}, "$q",
+	interaction{JustifyGoal, $User, {p,q}, "argument([?]=>$q)",
 		{
-			assign(User, speaker)
+			move(add, next, Propose, $User, {p}, AgentOne)
+			/*assign(User, speaker)
 			& move(add, next, AcceptGoal, $Agent, {p}, User)
 			& move(add, next, RejectGoalTooHigh, $Agent, {p}, User)
-			& move(add, next, RejectGoalTooLow, $Agent, {p}, User)
+			& move(add, next, RejectGoalTooLow, $Agent, {p}, User)*/
 		}
 	}
 
-	interaction{RejectGoalTooHigh, $Agent, {p}, "$p",
+	interaction{RejectGoalTooHigh, $AgentOne, {p}, "$p",
 		{
-			assign(Agent, speaker)
-			& move(add, next, Propose, $User, {q}, Agent)
-			& move(add, next, Breakout, $User, {p}, Agent)
+			assign(AgentOne, speaker)
+			& move(add, next, PrePropose, $User, AgentOne)
+			& move(add, next, Breakout, $User, {p}, AgentOne)
 		}
 	}
 
-	interaction{RejectGoalTooLow, $Agent, {p}, "$p",
+	interaction{RejectGoalTooLow, $AgentOne, {p}, "$p",
 		{
 			assign(Agent, speaker)
-			& move(add, next, Propose, $User, {q}, Agent)
-			& move(add, next, Breakout, $User, {p}, Agent)
+			& move(add, next, PrePropose, $User,AgentOne)
+			& move(add, next, Breakout, $User, {p}, AgentOne)
 		}
 	}
 
 	interaction{Breakout, $User, {p}, "$p",
 		{
-			move(add, next, End, $User, {$AgreedGoal$}, Agent)
+			move(add, next, End, $User, {$AgreedGoal$}, AgentOne)
 		}
 
 	}
 
 	interaction{GoalAccepted, $User, {p}, "$p",
 		{
-			move(add, next, End, $User, {p}, Agent)
+			move(add, next, End, $User, {p}, AgentOne)
+			& move(add, next, Interject, $User, AgentTwo)
 		}
 
+	}
+
+	interaction{Interject, $User, "$p",
+		{
+			move(add, next, End, $User, {$AgreedGoal$}, AgentOne)
+		}
 	}
 
 	interaction{End, $User, {p}, "$p",
