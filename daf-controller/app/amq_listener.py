@@ -1,6 +1,15 @@
 import stomp
 import json
 import os
+import uuid
+
+_dialogue_topic_map = {
+    "goalsetting": "FILSTANTIATOR",
+    "introduction": "WOOL",
+    "agenttest": "FILSTANTIATOR"
+}
+
+_wool_dialogue_ids = []
 
 class AMQListener(stomp.ConnectionListener):
     '''Class to listen for ActiveMQ internal or external ActiveMQ messages and
@@ -46,14 +55,50 @@ class AMQListener(stomp.ConnectionListener):
         #trim off the /topic/ from the start of the destination
         destination = headers["destination"][7:]
 
-        if destination in self.topic_mapping:
-            conn = stomp.Connection12([(self.amq_host, 61613)], auto_content_length=False)
-            conn.start()
-            conn.connect('admin','admin', wait=True)
+        message = json.loads(body)
 
-            for d in self.topic_mapping[destination]:
-                print("Destination: " + d)
-                print("Message: " + body)
-                conn.send(destination='/topic/' + d, body=body, header = {"ttl":30000})
+        cmd = message.get("cmd", None)
 
-            conn.disconnect()
+        if "response" in message:
+            message = message["response"]
+        else:
+            if "params" not in message and cmd is not None:
+                params = {}
+
+                for k,v in message.items():
+                    if k != "cmd":
+                        params[k] = v
+                message["params"] = params
+
+            if destination in self.topic_mapping:
+                if destination == "DGEP/requests":
+                    params = message.get("params",{})
+
+                    if cmd == "new":
+                        topic = params.get("topic","")
+                        d = _dialogue_topic_map.get(topic, None)
+
+                        if d is not None:
+                            self.topic_mapping[destination] = [d + "/requests"]
+                            if d == "WOOL":
+                                dialogueID = str(uuid.uuid4())
+                                _wool_dialogue_ids.append(dialogueID)
+                                message["params"]["dialogueID"] = dialogueID
+                    else:
+                        dialogueID = params.get("dialogueID",None)
+
+                        if dialogueID is not None and dialogueID in _wool_dialogue_ids:
+                            self.topic_mapping[destination] = ["WOOL/requests"]
+
+        body = json.dumps(message)
+
+        conn = stomp.Connection12([(self.amq_host, 61613)], auto_content_length=False)
+        conn.start()
+        conn.connect('admin','admin', wait=True)
+
+        for d in self.topic_mapping[destination]:
+            print("Destination: " + d)
+            print("Message: " + body)
+            conn.send(destination='/topic/' + d, body=body, header = {"ttl":30000})
+
+        conn.disconnect()

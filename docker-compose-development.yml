@@ -41,6 +41,12 @@ services:
   volumes:
   - ./dgep/src:/dgep/src
 
+ wool:
+   build: ./wool
+   container_name: wool
+   volumes:
+   - ./wool/src:/app
+
  #filstantiator
  utterance_generator:
   build: ./utterance_generator

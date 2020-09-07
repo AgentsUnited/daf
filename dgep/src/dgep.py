@@ -57,6 +57,10 @@ class DGEP(DialogueManager):
     @dgep_endpoint('new')
     def new_dialogue(self, data, system=None):
         try:
+
+            print("DGEP DATA")
+            print(data)
+
             '''If this is a sub-dialogue of an existing dialogue, we should already have a protocol'''
             if system is not None:
                 protocol = data["protocol"]
@@ -83,11 +87,16 @@ class DGEP(DialogueManager):
                     for p in participants:
                         if "player" in list(p.keys()):
                             if "name" in list(p.keys()):
+                                print("ADDING PLAYER")
+                                print(p)
                                 participantID = s.add_participant(p["player"], p["name"])
                                 to_return["participants"].append({"participantID": participantID, "name":p["name"]})
                             else:
                                 participantID = s.add_participant(p["player"])
                                 to_return["participants"].append({"participantID": participantID})
+
+                print("PARTICIPANTS")
+                print(s.participants)
 
                 if not s.start():
                     return {"error": s.last_error, "source":"system"}

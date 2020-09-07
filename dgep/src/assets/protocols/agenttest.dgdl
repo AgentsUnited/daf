@@ -1,0 +1,27 @@
+System{GoalSetting{
+	/* Description: A game to test multiple agents */
+
+	turns{magnitude:multiple, ordering:liberal}
+	roles{Person,Agent}
+	players{min:2, max:6}
+	player{id:AgentOne, roles{Person,Agent}, max:1, min:1}
+	player{id:AgentTwo, roles{Person, Agent}, max:1, min:1}
+  player{id:AgentThree, roles{Person, Agent}, max:1, min:1}
+  player{id:AgentFour, roles{Person, Agent}, max:1, min:1}
+  player{id:AgentFive, roles{Person, Agent}, max:1, min:1}
+	player{id:User, roles{Person,Agent}, max:1, min:1}
+
+	backtrack{on}
+
+  rule{id:StartingRule, scope:initial,
+    {
+        move(add, next, FirstMove, $User, Agent)
+    }
+  }
+
+	interaction{FirstMove, $User, "This is a dialogue move",
+		{
+			move(add, next, FirstMove, $User, Agent)
+		}
+	}
+}}

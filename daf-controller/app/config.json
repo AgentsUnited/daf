@@ -9,7 +9,8 @@
     {
       "from": "COUCH/USER/AUTHENTICATION",
       "to": [
-        "FILSTANTIATOR/auth"
+        "FILSTANTIATOR/auth",
+        "WOOL/auth"
       ]
     }
   ],
@@ -22,6 +23,18 @@
     },
     {
       "from": "FILSTANTIATOR/dialogue_moves",
+      "to": [
+        "DGEP/moves"
+      ]
+    },
+    {
+      "from": "WOOL/response",
+      "to": [
+        "DGEP/response"
+      ]
+    },
+    {
+      "from": "WOOL/dialogue_moves",
       "to": [
         "DGEP/moves"
       ]

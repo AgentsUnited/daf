@@ -192,6 +192,10 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
     def handle_request(self, data):
         if data["cmd"] == "new":
             if "params" in data.keys():
+
+                if "topic" in data["params"]:
+                    pass
+
                 session_id = self.new_dialogue(data["params"])
 
                 data["params"]["sessionID"] = session_id
@@ -235,6 +239,9 @@ class UtteranceGeneratorListener(stomp.ConnectionListener):
                 data["moves"] = {}
 
             self.store_moves(data["moves"], dialogueID)
+
+        print("UTTERANCE GENERATOR DATA")
+        print(data)
 
         return data
 
@@ -336,35 +343,35 @@ def check_first_run():
         vars = db["variables"]
         content_descriptors = db["content_descriptors"]
         coaching_variables = db["coaching_variables"] # for testing - should normally interface with skb
+        topic_mapping = db["topic_mapping"]
 
         with open(file.replace("{file}","dictionary"), "r") as d:
             d = json.load(d)
-
             for p in d:
                 dictionary.insert_one(p)
 
         with open(file.replace("{file}", "argument_rules"), "r") as rules:
             rules = json.load(rules)
-
             for protocol in rules:
                 argument_rules.insert_one(protocol)
 
         with open(file.replace("{file}", "variables"), "r") as variables:
             variables = json.load(variables)
-
             for v in variables:
                 vars.insert_one(v)
 
         with open(file.replace("{file}", "content_descriptors"), "r") as cd:
             cd = json.load(cd)
-
             for c in cd:
                 content_descriptors.insert_one(c);
 
         with open(file.replace("{file}", "coaching_variables"), "r") as cv:
             cv = json.load(cv)
-
             coaching_variables.insert_one(cv);
+
+        with open(file.replace("{file}", "topic_mapping"), "r") as tm:
+            tm = json.load(tm)
+            topic_mapping.insert_one(tm)
 
 
 if __name__ == '__main__':
