@@ -44,6 +44,14 @@ class WoolRequestHandler:
             if authToken is None or agent is None:
                 return {"error": "User is not authorised"}
 
+            participants_new = []
+
+            i = 1
+            for p in participants:
+                participants_new.append({"name": p["name"], "participantID": i})
+                i = i+1
+
+
             self.dialogue = {
                 "source": "wool",
                 "dialogueID": dialogueID,
@@ -60,7 +68,7 @@ class WoolRequestHandler:
 
             response = {"dialogueID": dialogueID,
                         "moves": self.dialogue["moveData"]["moves"],
-                        "participants": participants,
+                        "participants": participants_new,
                         "clearvars": []
             }
 
