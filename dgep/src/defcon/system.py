@@ -251,10 +251,11 @@ class System:
                         new_move["moveID"] = move.id
                         move_set.append(new_move)
 
-                if p.name:
-                    return_moves[p.name] = move_set
-                else:
-                    return_moves[p.participantID] = move_set
+                if move_set:
+                    if p.name:
+                        return_moves[p.name] = move_set
+                    else:
+                        return_moves[p.participantID] = move_set
 
         return return_moves
 
