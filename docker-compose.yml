@@ -36,6 +36,11 @@ services:
   build: ./dgep
   container_name: dgep
 
+ #wool  
+ wool:
+  build: ./wool
+   container_name: wool
+
  #filstantiator
  utterance_generator:
   build: ./utterance_generator
