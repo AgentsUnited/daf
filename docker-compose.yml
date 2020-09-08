@@ -36,10 +36,10 @@ services:
   build: ./dgep
   container_name: dgep
 
- #wool  
+ #wool
  wool:
   build: ./wool
-   container_name: wool
+  container_name: wool
 
  #filstantiator
  utterance_generator:
