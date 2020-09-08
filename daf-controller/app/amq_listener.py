@@ -72,32 +72,33 @@ class AMQListener(stomp.ConnectionListener):
                         params[k] = v
                 message["params"] = params
 
+        if destination in self.topic_mapping:
+            if destination == "DGEP/requests":
+                params = message.get("params",{})
 
+                if cmd == "new":
+                    topic = params.get("topic","").lower()
+                    d = _dialogue_topic_map.get(topic, None)
 
-            if destination in self.topic_mapping:
-                if destination == "DGEP/requests":
-                    params = message.get("params",{})
+                    if d is not None:
 
-                    if cmd == "new":
-                        topic = params.get("topic","").lower()
-                        d = _dialogue_topic_map.get(topic, None)
-                        print("Forwarding to: " + str(d))
+                        tmp = [d + "/requests"]
+                        if d == "WOOL":
+                            dialogueID = str(uuid.uuid4())
+                            _wool_dialogue_ids.append(dialogueID)
+                            message["params"]["dialogueID"] = dialogueID
+                else:
+                    dialogueID = params.get("dialogueID",None)
 
-                        if d is not None:
+                    if dialogueID is not None and dialogueID in _wool_dialogue_ids:
+                        tmp = ["WOOL/requests"]
 
-                            tmp = [d + "/requests"]
-                            if d == "WOOL":
-                                dialogueID = str(uuid.uuid4())
-                                _wool_dialogue_ids.append(dialogueID)
-                                message["params"]["dialogueID"] = dialogueID
-                    else:
-                        dialogueID = params.get("dialogueID",None)
+            if tmp is None:
+                tmp = self.topic_mapping[destination]
 
-                        if dialogueID is not None and dialogueID in _wool_dialogue_ids:
-                            tmp = ["WOOL/requests"]
-
+        # if tmp is still none, we can't do anything...
         if tmp is None:
-            tmp = self.topic_mapping
+            return
 
         body = json.dumps(message)
 
