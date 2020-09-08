@@ -91,7 +91,7 @@ class AMQListener(stomp.ConnectionListener):
                             message["params"]["dialogueID"] = dialogueID
                 else:
                     dialogueID = params.get("dialogueID",None)
-
+                    
                     if dialogueID is not None and dialogueID in _wool_dialogue_ids:
                         tmp = ["WOOL/requests"]
 
