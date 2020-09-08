@@ -1,6 +1,7 @@
 import daf
 import requests
 import json
+import mongo
 
 _user_data = {}
 _dialogue_data = {}
@@ -15,11 +16,15 @@ class WoolRequestHandler:
 
     @daf.command_handler("login")
     def handle_login(self, command, data):
-        username = data.get("username", None)
-        authToken = data.get("authToken", None)
-
-        if username is not None and authToken is not None:
-            _user_data[username] = {"authToken": authToken}
+        # username = data.get("username", None)
+        # authToken = data.get("authToken", None)
+        #
+        # if username is not None and authToken is not None:
+        #
+        #     col = mongo.get_column("users")
+        #     col.insert_one(data)
+        #
+        #     _user_data[username] = {"authToken": authToken}
 
         return data
 
@@ -30,9 +35,15 @@ class WoolRequestHandler:
         topic = data.get("topic", None)
         participants = data.get("participants", None)
 
+        col = mongo.get_column("users")
+        user_data = col.find_one({"username": username})
+
+        if user_data is None:
+            return {}
+
         if dialogueID is not None and username is not None and topic is not None and participants is not None:
 
-            _dialogue_data[dialogueID] = {"authToken": _user_data[username]["authToken"]}
+            _dialogue_data[dialogueID] = {"authToken": user_data["authToken"]}
             _dialogue_data[dialogueID]["participants"] = {p["player"].lower(): p["name"] for p in participants}
             _dialogue_data[dialogueID]["moveData"] = self.start_dialogue(dialogueID)
 

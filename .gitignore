@@ -1,4 +1,5 @@
-mongo*
+mongo
+mongo~
 dgep/src/dialogues
 .DS_Store
 # Byte-compiled / optimized / DLL files
