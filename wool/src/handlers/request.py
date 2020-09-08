@@ -149,6 +149,9 @@ class WoolRequestHandler:
         return self.dialogue
 
     def save_dialogue(self):
+        """
+        Save the current dialogue state to mongo
+        """
         dialogueID = self.dialogue["dialogueID"]
 
         col = mongo.get_column("dialogues")
