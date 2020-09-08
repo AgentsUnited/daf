@@ -1,0 +1,119 @@
+import re
+import requests
+import os
+import json
+import mongo
+
+_content_location = "https://servletstest.rrdweb.nl/wool/v1" #os.getenv('CONTENT_DATABASE')
+
+def get_values(auth_token, variables):
+    """
+    Get the values for the given variables from the WOOL variable store
+    """
+    to_return = {}
+
+    headers = {
+        "content-type": "application/json",
+        "accept": "*/*",
+        "X-Auth-Token": auth_token
+    }
+
+    query_string = requests.utils.quote(" ".join(variables))
+    response = requests.get(_content_location + "/variables?names=" + query_string, headers=headers)
+    to_return = json.loads(response.text)
+
+    return to_return
+
+def get_value(auth_token, variable):
+    """
+    Gets the value of the given variable
+    """
+    values = get_values(auth_token, [variable])
+    return values.get(variable, None)
+
+
+def get_terms(auth_token, variables):
+    """
+    Gets values for the given variables and returns as variable(value) terms
+    """
+    terms = []
+    values = get_values(auth_token, variables)
+
+    for key, value in values.items():
+        if type(value) is list:
+            for v in value:
+                terms.append("{}({})".format(key, v))
+        else:
+            terms.append("{}({})".format(key, value))
+
+    return terms
+
+
+def insert_values(auth_token, input):
+    """
+    Replaces any {{instances}} with values from the variable store, if
+    they exist
+    """
+
+    matches = re.findall(re.compile(r"(?:{{([^{}]+)}})"), input)
+
+    if matches:
+        for m in matches:
+            value = get_value(variable)
+            if value is not None:
+                input = input.replace("{{{{{var}}}}}".format(var=m), value)
+
+    return input
+
+def get_clear_vars(topic):
+    """
+    Gets the "clearvars" for the given topic, variables that should be cleared
+    when a new dialogue is started using that topic
+    """
+    to_return = []
+
+    col = mongo.get_column("variables")
+    result = col.find_one({"topic": topic})
+
+    if result and "variables" in result:
+        for move_name, variables in result["variables"].items():
+            for name, parameters in variables.items():
+                if parameters.get("clear_on_new",False) == True:
+                    to_return.append(name)
+
+    return to_return
+
+def get_move_vars(topic, move_name, reply, auth_token=None):
+    """
+    Gets the variables that the given move in the given topic should store,
+    then adds values based on the reply (if required)
+    """
+
+    to_return = {}
+
+    col = mongo.get_column("variables")
+    result = col.find_one({"topic": topic})
+
+    if result is not None and "variables" in result:
+        for name, var in result["variables"].get(move_name, {}).items():
+            value = var.get("value","")
+            if auth_token is not None:
+                name = insert_values(auth_token, name)
+
+            append = False
+            if "append" in var and type(var["append"]) == bool:
+                append = var["append"]
+
+            if value[0] == "$":
+                if value[1:] in reply:
+                    value = reply[value[1:]]
+
+                    matches = re.findall(re.compile(r"(?:[^() ])+\(([^()]+)\)"), value)
+                    if matches:
+                        value = matches[0]
+                else:
+                    value = ""
+
+            to_return[name] = {"append": append, "value": value}
+
+    return to_return
