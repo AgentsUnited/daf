@@ -54,7 +54,8 @@ class DGEPListener(stomp.ConnectionListener):
             self.send_message(json.dumps({"error":"no command specified"}))
         else:
             message = dgep_endpoint.invoke(self.dgep, data["cmd"], data["params"])
-            self.send_message(json.dumps(message), data["cmd"])
+            # self.send_message(json.dumps(message), data["cmd"])
+            self.send_message(json.dumps({"cmd": data["cmd"], "response": message}), data["cmd"])
 
     def send_message(self, message, cmd):
         """ Send a message to ActiveMQ

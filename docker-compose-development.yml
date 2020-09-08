@@ -49,14 +49,14 @@ services:
 
  #filstantiator
  utterance_generator:
-  build: ./utterance_generator
+  build: ./utterance_generator2
   container_name: utterance_generator
   depends_on:
   - dung_o_matic
   volumes:
-  - ./utterance_generator/src:/app
-  env_file:
-  - ./utterance_generator/config.env
+  - ./utterance_generator2/src:/app
+  # env_file:
+  # - ./utterance_generator/config.env
 
  # #toast: required by utterance_generator
  # toast:
