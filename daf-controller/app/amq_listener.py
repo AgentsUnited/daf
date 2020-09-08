@@ -9,6 +9,8 @@ _dialogue_topic_map = {
     "agenttest": "FILSTANTIATOR"
 }
 
+_wool_start_id = 10000
+
 _wool_dialogue_ids = []
 
 class AMQListener(stomp.ConnectionListener):
@@ -84,7 +86,7 @@ class AMQListener(stomp.ConnectionListener):
 
                         tmp = [d + "/requests"]
                         if d == "WOOL":
-                            dialogueID = str(uuid.uuid4())
+                            dialogueID = _wool_start_id + len(_wool_dialogue_ids)
                             _wool_dialogue_ids.append(dialogueID)
                             message["params"]["dialogueID"] = dialogueID
                 else:
