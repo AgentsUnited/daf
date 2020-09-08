@@ -116,13 +116,13 @@ class WoolRequestHandler:
                         move = {"moveID": str(reply["replyId"]), "target":"", "reply":{}, "opener": " ".join([s["text"] for s in reply["statement"]["segments"]])}
                         self.dialogue["moveData"]["moves"][user] = move
                 else:
-                    response = self.progress_dialogue(dialogueID, "1")
+                    response = self.progress_dialogue("1")
                     if response is not None:
                         self.dialogue["moveData"] = response
 
             else:
                 # need to advance the dialogue
-                response = self.progress_dialogue(dialogueID, data["moveID"])
+                response = self.progress_dialogue(data["moveID"])
                 if response is not None:
                     self.dialogue["moveData"] = response
 
