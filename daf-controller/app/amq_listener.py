@@ -70,6 +70,8 @@ class AMQListener(stomp.ConnectionListener):
                         params[k] = v
                 message["params"] = params
 
+            tmp = None
+
             if destination in self.topic_mapping:
                 if destination == "DGEP/requests":
                     params = message.get("params",{})
@@ -79,7 +81,7 @@ class AMQListener(stomp.ConnectionListener):
                         d = _dialogue_topic_map.get(topic, None)
 
                         if d is not None:
-                            self.topic_mapping[destination] = [d + "/requests"]
+                            tmp = [d + "/requests"]
                             if d == "WOOL":
                                 dialogueID = str(uuid.uuid4())
                                 _wool_dialogue_ids.append(dialogueID)
@@ -88,7 +90,10 @@ class AMQListener(stomp.ConnectionListener):
                         dialogueID = params.get("dialogueID",None)
 
                         if dialogueID is not None and dialogueID in _wool_dialogue_ids:
-                            self.topic_mapping[destination] = ["WOOL/requests"]
+                            tmp = ["WOOL/requests"]
+
+        if tmp is None:
+            tmp = self.topic_mapping
 
         body = json.dumps(message)
 
