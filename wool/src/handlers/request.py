@@ -109,12 +109,13 @@ class WoolRequestHandler:
             if data["moveID"].lower() == "agentmove":
                 # are there any replies
                 if dialogue_data["replies"]:
+                    self.dialogue["moveData"]["moves"][user] = []
                     user = self.dialogue["participants"]["user"]
                     self.dialogue["moveData"]["moves"] = {user: []}
 
                     for reply in dialogue_data["replies"]:
                         move = {"moveID": str(reply["replyId"]), "target":"", "reply":{}, "opener": " ".join([s["text"] for s in reply["statement"]["segments"]])}
-                        self.dialogue["moveData"]["moves"][user] = move
+                        self.dialogue["moveData"]["moves"][user].append(move)
                 else:
                     response = self.progress_dialogue("1")
                     if response is not None:
