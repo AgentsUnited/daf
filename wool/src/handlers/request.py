@@ -117,7 +117,7 @@ class WoolRequestHandler:
                         move = {"moveID": str(reply["replyId"]), "target":"", "reply":{}, "opener": " ".join([s["text"] for s in reply["statement"]["segments"]])}
                         self.dialogue["moveData"]["moves"][user].append(move)
                 else:
-                    response = self.progress_dialogue("1")
+                    response = self.progress_dialogue(str(dialogue_data["replyID"]))
                     if response is not None:
                         self.dialogue["moveData"] = response
 
@@ -229,20 +229,24 @@ class WoolRequestHandler:
         :return: the moves
         :rtype: dict
         """
-        to_return = {"moves": {}, "replies": []}
+        to_return = {"moves": {}, "replies": [], "replyID": 0}
 
         if response is not None:
             opener = " ".join([s["text"] for s in response["statement"]["segments"]])
             to_return["moves"][response["speaker"]] = [{"moveID": "AgentMove", "target":"", "reply":{}, "opener": opener}]
 
             replies = True
+            reply_id = 0
 
             for r in response["replies"]:
                 if r["statement"] is None:
                     replies = False
+                    reply_id = r["replyId"]
                     break
 
             if replies:
                 to_return["replies"] = response["replies"]
+            else:
+                to_return["replyID"] = reply_id
 
         return to_return
