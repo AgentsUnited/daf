@@ -59,6 +59,8 @@ class AMQListener(stomp.ConnectionListener):
 
         cmd = message.get("cmd", None)
 
+        tmp = None
+
         if "response" in message:
             message = message["response"]
         else:
@@ -70,17 +72,19 @@ class AMQListener(stomp.ConnectionListener):
                         params[k] = v
                 message["params"] = params
 
-            tmp = None
+
 
             if destination in self.topic_mapping:
                 if destination == "DGEP/requests":
                     params = message.get("params",{})
 
                     if cmd == "new":
-                        topic = params.get("topic","")
+                        topic = params.get("topic","").lower()
                         d = _dialogue_topic_map.get(topic, None)
+                        print("Forwarding to: " + str(d))
 
                         if d is not None:
+
                             tmp = [d + "/requests"]
                             if d == "WOOL":
                                 dialogueID = str(uuid.uuid4())
@@ -101,7 +105,7 @@ class AMQListener(stomp.ConnectionListener):
         conn.start()
         conn.connect('admin','admin', wait=True)
 
-        for d in self.topic_mapping[destination]:
+        for d in tmp:
             print("Destination: " + d)
             print("Message: " + body)
             conn.send(destination='/topic/' + d, body=body, header = {"ttl":30000})
