@@ -11,7 +11,7 @@ var dgep_msg =
       filstantiator:[],
       authToken:"xyz",
       filstantiator: {},
-      username: "test001@council-of-coaches.eu"
+      username: "demouser1@council-of-coaches.eu"
     }
   };
 
@@ -147,30 +147,34 @@ daf_test_protocol.process_incoming_moves = function(moves){
     content[participant_columns[i]] = $("<div />").css("border-bottom","1px solid black").css("padding-bottom","5px");
   }
 
+  console.log(participants);
+  console.log(moves);
+
   for(var i=0;i<participants.length;i++){
 
-    var moves = moves[participants[i]];
+    var _moves = moves[participants[i]];
     var d = $("<div />").css("border-bottom","1px solid black").css("width","50%");
 
-    for(var j=0;j<moves.length;j++){
+    for(var j=0;j<_moves.length;j++){
 
-      if(moves[j]["opener"]=="{INPUT}"){
-        moves[j]["reply"]["p"] = "name(Mark Snaith)"
-        moves[j]["opener"] = "My name is Mark Snaith"
+      if(_moves[j]["opener"]=="{INPUT}"){
+        _moves[j]["reply"]["p"] = "name(Mark Snaith)"
+        _moves[j]["opener"] = "My name is Mark Snaith"
       }
 
 
       available_moves[j] = {
-        moveID: moves[j]["moveID"],
+        moveID: _moves[j]["moveID"],
         speaker: participants[i],
-        target: moves[j]["target"],
-        reply: moves[j]["reply"],
-        vars: moves[j]["vars"]
+        target: _moves[j]["target"],
+        reply: _moves[j]["reply"],
+        vars: _moves[j]["vars"]
       }
 
-      var btn = $("<button />").attr("id", j).html(moves[j]["opener"]).on("click", function(){
+      var btn = $("<button />").attr("id", j).addClass("response_button").html(_moves[j]["opener"]).on("click", function(){
         daf_test_protocol.prepare_send_move($(this).attr("id"));
         $(this).parent().html($(this).html());
+        $(".response_button").remove();
       });
       d.append(btn).append("<br />");
     }

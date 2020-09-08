@@ -1,7 +1,7 @@
 import daf
 import mongo
 
-@daf.message_handler("COUCH/USER/AUTHENTICATION")
+@daf.message_handler("FILSTANTIATOR/auth")
 class AuthHandler:
 
     @daf.command_handler("login")

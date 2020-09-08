@@ -1,12 +1,14 @@
 import daf
 import dialogue
 import mongo
+import re
 from content import Statement, content_locator, variable_manager
 
 @daf.message_handler("DGEP/moves", "FILSTANTIATOR/dialogue_moves")
 class Moves:
 
     @daf.command_handler("moves")
+    @daf.command_handler("interaction")
     def handle_moves(self, command, data):
         print(data)
         dialogue_id = data.get("dialogueID", None)
@@ -37,7 +39,7 @@ class Moves:
                 if descriptors is not None:
                     if self.move_requires_content(move):
                         if "content" in descriptors:
-                            content = content_locator.find_content(dialogue_id, speaker, descriptors["content"],move)
+                            content = content_locator.find_content(dialogue_id, speaker, descriptors["content"], move, history)
 
                             for c in content:
                                 new_reply = {}
@@ -50,7 +52,7 @@ class Moves:
 
                                 variables = variable_manager.get_move_vars(dialogue.get_topic(dialogue_id), move_id, new_reply, dialogue.get_auth_token(dialogue_id))
 
-                                for statement in self.filter_statements(c["statements"]):
+                                for statement in self.filter_statements(c["statements"], history):
                                     new_move = self.build_new_move(move["moveID"],
                                                                    new_reply,
                                                                    statement["text"],
@@ -62,7 +64,7 @@ class Moves:
                         s = Statement(dialogue_id, move, descriptors, history)
                         statements = s.find_statements()
                         variables = variable_manager.get_move_vars(dialogue.get_topic(dialogue_id), move_id, move.get("reply",{}), dialogue.get_auth_token(dialogue_id))
-                        for statement in self.filter_statements(statements):
+                        for statement in self.filter_statements(statements, history):
                             new_move = self.build_new_move(move["moveID"],
                                                            move.get("reply",{}),
                                                            statement["text"],
@@ -117,8 +119,96 @@ class Moves:
             "vars": vars
         }
 
-    def filter_statements(self, statements):
+    def filter_statements(self, statements, history):
         """
         TODO: various filtering methods for statements based on properties
         """
-        return statements
+
+        def check_previous_move(condition, previous_moves):
+
+            negate = False
+            result = False
+
+            if condition[0] == "!":
+                negate = True
+                condition = condition[1:]
+
+            regex = re.compile(r"([^{}]+){(\d+)}")
+            matches = re.findall(regex, condition)
+
+            if matches:
+                moveID = matches[0][0]
+                lookback = int(matches[0][1])
+
+                if len(previous_moves) >= lookback:
+                    move = previous_moves[lookback * -1]
+
+                    if move.lower() == moveID.lower():
+                        result = True
+            else:
+                if condition in previous_moves:
+                    result = True
+
+            if negate:
+                return not result
+            else:
+                return result
+
+        def check_last_move(condition, previous_moves):
+            return check_previous_move(condition + "{1}", previous_moves)
+
+
+        handlers = {
+            "previousmove": check_previous_move,
+            "lastmove": check_last_move
+        }
+
+        previous_moves = [m["moveID"].lower() for m in history]
+
+        properties_satisfied = [0] * len(statements)
+
+        highest = 0
+
+        i = 0
+        for statement in statements:
+            for property in statement.get("properties",[]):
+                if ":" in property:
+                    parts = property.split(":")
+
+                    if parts[0] in handlers:
+                        result = handlers[parts[0]](parts[1], previous_moves)
+
+                    if result:
+                        properties_satisfied[i] = properties_satisfied[i] + 1
+                        if properties_satisfied[i] > highest:
+                            highest = properties_satisfied[i]
+                    else:
+                        properties_satisfied[i] = properties_satisfied[i] - 1
+
+                    # negate = False
+                    #
+                    # if parts[1][0] == "!":
+                    #     negate = True
+                    #     parts[1] = parts[1][1:]
+                    #
+                    # if parts[0] == "previousmove" and parts[1] in previous_moves:
+                    #     properties_satisfied[i] = properties_satisfied[i] + 1
+                    #     if properties_satisfied[i] > highest:
+                    #         highest = properties_satisfied[i]
+                    # elif parts[0] == "lastmove" and len(previous_moves) > 0 and previous_moves[-1] == parts[1]:
+                    #     properties_satisfied[i] = properties_satisfied[i] + 1
+                    #     if properties_satisfied[i] > highest:
+                    #         highest = properties_satisfied[i]
+                    # else:
+                    #     properties_satisfied[i] = properties_satisfied[i] - 1
+                    #
+                    #     print("{} is a previous move".format(parts[1]))
+            i = i+1
+
+        new_statements = [statements[i] for i in range(len(statements)) if properties_satisfied[i] == highest]
+
+
+        print(properties_satisfied)
+
+
+        return new_statements

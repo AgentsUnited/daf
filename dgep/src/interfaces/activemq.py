@@ -74,8 +74,8 @@ class DGEPListener(stomp.ConnectionListener):
         else:
             topic = "response"
 
-        #print("Sending message:")
-        #print(message)
+        print("Sending message:")
+        print(message)
 
         conn = stomp.Connection12([(self.amq_host, 61613)], auto_content_length=False)
         conn.start()

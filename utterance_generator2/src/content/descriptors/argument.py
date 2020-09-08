@@ -13,6 +13,8 @@ class Argument(ContentDescriptor):
 
         self.argument_model = {}
 
+        self.history = kwargs["history"]
+
         # if self.speaker is not None:
         #     col = mongo.get_column("dialogues")
         #     result = col.find_one({"dialogueID": self.dialogue_id})
@@ -30,6 +32,11 @@ class Argument(ContentDescriptor):
 
         self.theory = self.build_theory()
 
+        print("THEORY")
+        print(self.theory)
+
+        print(self.history)
+
 
     def build_theory(self):
         system = pyaspic.ArgumentationSystem()
@@ -41,7 +48,9 @@ class Argument(ContentDescriptor):
         for rule in self.argument_model.get("rules",[]):
             rule = self.create_aspic_rule(variable_manager.insert_values(auth_token, rule))
             system.add_rule(rule)
-            all_antecedents.extend([a[0] for a in term.get_term_specifications(rule.antecedents)])
+            all_antecedents.extend([a[0] for a in term.get_term_specifications(rule.antecedents) if "<" not in a[0]])
+
+        print(all_antecedents)
 
         all_antecedents = list(set(all_antecedents))
 
@@ -57,7 +66,7 @@ class Argument(ContentDescriptor):
 
             c = contrary.split(symbol)
             for i in range(2):
-                c[i] = variable_manager.insert_values(c[i])
+                c[i] = variable_manager.insert_values(auth_token,c[i])
 
             system.add_contrary((c[0],c[1]),contradiction)
 

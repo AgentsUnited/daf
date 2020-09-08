@@ -40,6 +40,8 @@ def get_terms(auth_token, variables):
     values = get_values(auth_token, variables)
 
     for key, value in values.items():
+        if value is None:
+            continue
         if type(value) is list:
             for v in value:
                 terms.append("{}({})".format(key, v))
