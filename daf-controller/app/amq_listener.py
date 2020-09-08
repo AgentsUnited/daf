@@ -6,7 +6,9 @@ import uuid
 _dialogue_topic_map = {
     "goalsetting": "FILSTANTIATOR",
     "introduction": "WOOL",
-    "agenttest": "FILSTANTIATOR"
+    "agenttest": "FILSTANTIATOR",
+    "goalsetting1": "WOOL",
+    "gatherinformation":"WOOL"
 }
 
 _wool_start_id = 10000
@@ -91,7 +93,7 @@ class AMQListener(stomp.ConnectionListener):
                             message["params"]["dialogueID"] = dialogueID
                 else:
                     dialogueID = params.get("dialogueID",None)
-                    
+
                     if dialogueID is not None and dialogueID in _wool_dialogue_ids:
                         tmp = ["WOOL/requests"]
 
