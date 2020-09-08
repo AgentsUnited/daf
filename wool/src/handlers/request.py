@@ -89,7 +89,7 @@ class WoolRequestHandler:
         else:
             return {}
 
-    @daf.command_handler("interaction")
+    @daf.command_handler("interaction", response_topic="WOOL/dialogue_moves")
     def handle_interaction(self, command, data):
         """
         Handle "interaction" command
