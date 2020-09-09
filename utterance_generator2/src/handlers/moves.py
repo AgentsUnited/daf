@@ -124,6 +124,20 @@ class Moves:
         TODO: various filtering methods for statements based on properties
         """
 
+        def fill_statement_variables(statement, history):
+            regex = re.compile(r"<<(.*)>>")
+
+            matches = re.findall(regex, statement)
+
+            if matches:
+                for m in matches:
+                    if m == "lastspeaker":
+                        if len(history) > 0:
+                            replacement = history[-1]["speaker"]
+
+                            statement = statement.replace("<<{}>>".format(m), replacement)
+            return statement
+
         def check_previous_move(condition, previous_moves):
 
             negate = False
@@ -157,7 +171,6 @@ class Moves:
         def check_last_move(condition, previous_moves):
             return check_previous_move(condition + "{1}", previous_moves)
 
-
         handlers = {
             "previousmove": check_previous_move,
             "lastmove": check_last_move
@@ -171,6 +184,7 @@ class Moves:
 
         i = 0
         for statement in statements:
+            statement["text"] = fill_statement_variables(statement["text"], history)
             for property in statement.get("properties",[]):
                 if ":" in property:
                     parts = property.split(":")

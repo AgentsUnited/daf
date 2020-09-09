@@ -1,0 +1,26 @@
+{
+  "topic": "goalsetting",
+  "variables": {
+    "acceptgoal": {
+      "agreedGoal": {
+        "append": false,
+        "value": "$p",
+        "clear_on_new": true
+      }
+    },
+    "rejectgoaltoohigh": {
+      "rejectedTooHigh": {
+        "append": true,
+        "value": "$p",
+        "clear_on_new": true
+      }
+    },
+    "rejectgoaltoolow": {
+      "rejectedTooLow": {
+        "append": true,
+        "value": "$p",
+        "clear_on_new": true
+      }
+    }
+  }
+}

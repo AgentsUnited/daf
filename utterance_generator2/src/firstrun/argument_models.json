@@ -1,0 +1,33 @@
+{
+  "contentID": "abc",
+  "model": {
+    "rules": [
+      "[r1] userGender(male) => recommended(10000)",
+      "[r2] recommended(X) => set_long_term_goal(X)",
+      "[r3] userHasDog(False), userAge(X), 64<X => suggested(7500)",
+      "[r4] currentGoal(steps), userAge(X), X<18 => suggested(13000)",
+      "[r5] suggested(X) => set_long_term_goal(X)",
+      "[r6] rejectedTooHigh(X) => set_long_term_goal([X*0.8])",
+      "[r7] rejectedTooLow(X) => set_long_term_goal([X*1.2])",
+      "[r8] rejectedTooHigh(X) -> ~set_long_term_goal(X)",
+      "[r9] rejectedTooLow(X) -> ~set_long_term_goal(X)",
+      "[r10] long_term_goal_set(true) -> ~set_long_term_goal(X)",
+      "[r11] long_term_goal(X) => set_short_term_goal([X*0.4])",
+      "[r12] rejected_times(2) -> ~long_term_goal(X)",
+      "[r13] rejected_times(2) -> ~rejected_too_high(X)",
+      "[r14] rejected_times(2) -> ~rejected_too_low(X)",
+      "[r15] rejected_times(2) => breakout(2)",
+      "[r16] current_goal(minutes) => recommended(150)",
+      "[r17] current_goal(minutes), user_age(X), 64<X => suggested(150)",
+      "[r18] current_goal(minutes), user_age(X), X<18 => suggested(60)"
+    ],
+    "rulePreferences": [
+      "[r1] < [r4]",
+      "[r1] < [r5]",
+      "[r1] < [r6]"
+    ],
+    "contrariness": [
+      "set_long_term_goal(X)-set_long_term_goal(Y)"
+    ]
+  }
+}

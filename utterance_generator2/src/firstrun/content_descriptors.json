@@ -1,0 +1,33 @@
+{
+  "protocol": "goalsetting",
+  "descriptors": {
+    "prepropose": {
+      "default": "prepropose"
+    },
+    "propose": {
+      "content": "argument([set_long_term_goal(?)])",
+      "lastmove:justifygoal": "set_long_term_goal(p:1)"
+    },
+    "challengegoal": {
+      "default": "challenge_goal(p:1)"
+    },
+    "acceptgoal": {
+      "default": "accept_goal(p:1)"
+    },
+    "rejectgoaltoohigh": {
+      "default": "reject_too_high(p:1)"
+    },
+    "justifygoal": {
+      "content": "argument([?]=>$p)"
+    },
+    "goalaccepted": {
+      "default": "goal_accepted(p:1)"
+    },
+    "interject": {
+      "default": "interject"
+    },
+    "end": {
+      "default": "end"
+    }
+  }
+}

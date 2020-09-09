@@ -77,6 +77,7 @@ class Argument(ContentDescriptor):
         kb = pyaspic.KnowledgeBase()
 
         for t in variable_manager.get_terms(auth_token, all_antecedents):
+            print("TERM: " + str(t))
             kb.add_premise(pyaspic.Formula(t))
 
         theory = pyaspic.ArgumentationTheory(system, kb)
@@ -117,55 +118,115 @@ class Argument(ContentDescriptor):
                 content = []
                 arguments = self.get_arguments_matching_conclusion(conclusion)
 
-                acceptable = [a for a in arguments if a in self.theory["extensions"][0]]
-                unacceptable = [a for a in arguments if a not in acceptable]
+                arguments2 = self.get_arguments_with_conclusion(conclusion, True)
 
-                however = []
+
+                arguments = self.get_arguments_with_conclusion(conclusion, True)
                 support = []
 
-                for a in unacceptable:
-                    s = [self.theory["arguments"][b]["conclusion"] for b in self.theory["arguments"][a]["last_sub_arguments"]]
+                print("Arguments found: " + str(arguments))
 
-                    if len(s) == len(premises):
-                        support.append(s)
+                for label,arg in arguments.items():
+                    for sub_arg in arg["last_sub_arguments"]:
+                        support.append(self.theory["arguments"][sub_arg]["conclusion"])
+
+                print("Support for {}: {}".format(conclusion,str(support)))
+
+                if len(support) == len(vars_to_fill):
+                    var_map = dict(zip(vars_to_fill, support))
+                    statements = []
+                    for s in support:
+                        spec = term.get_term_specification(s)
+                        entry = dictionary.get_entry(self.dialogue_id, spec[0], spec[2])
+                        statements.extend(entry)
 
 
-                for i in range(len(support)):
-                    if len(support[i]) == len(vars_to_fill):
-                        for c in support[i]:
-                            content_spec = term.get_term_specification(c)
-                            entry = dictionary.get_entry(self.dialogue_id, content_spec[0],content_spec[2])
-                            however.extend(entry)
+                    if statements:
+                        however = []
+                        similar = self.get_similar_arguments(conclusion)
 
-                # need to find non-atomic args that conclude this
-                for a in acceptable:
-                    acceptable_check = [b for b in self.theory["arguments"][a]["last_sub_arguments"] if b in self.theory["extensions"][0]]
-                    if len(acceptable_check) == len(premises):
-                        content.append([self.theory["arguments"][a]["conclusion"] for a in acceptable_check])
+                        for label, arg in similar.items():
+                            for sub_arg in arg["last_sub_arguments"]:
+                                conclusion = self.theory["arguments"][sub_arg]["conclusion"]
+                                spec = term.get_term_specification(conclusion)
+                                entry = dictionary.get_entry(self.dialogue_id, spec[0], spec[2])
 
-                for i in range(len(content)):
-                    if len(content[i]) == len(vars_to_fill):
-                        var_map = dict(zip(vars_to_fill, content[i]))
-                        s = []
-
-                        for c in content[i]:
-                            content_spec = term.get_term_specification(c)
-                            entry = dictionary.get_entry(self.dialogue_id, content_spec[0],content_spec[2])
-                            s.extend(entry)
-
-                        statements = []
+                                for e in entry:
+                                    however.append(e["text"])
 
                         if however:
-                            for statement in s:
-                                statement["text"] = however[0]["text"] + " however " + statement["text"]
-                                statements.append(statement)
-                        else:
-                            statements = s
+                            new_statements = []
 
-                        to_return.append({
-                            "content": var_map,
-                            "statements": statements
-                        })
+                            for s in statements:
+                                text = s["text"]
+                                properties = s["properties"]
+                                for h in however:
+                                    new_statement = {"text": "{} however {}".format(h, text), "properties": properties}
+                                    new_statements.append(new_statement)
+
+                            statements = new_statements
+
+                        to_return.append({"content": {vars_to_fill[0]: support[0]}, "statements": statements})
+
+
+
+
+
+                        # now look for "however" components
+
+                # arguments = self.get_arguments_matching_conclusion(conclusion)
+                #
+                # acceptable = [a for a in arguments if a in self.theory["extensions"][0]]
+                # unacceptable = [a for a in arguments if a not in acceptable]
+                #
+                # however = []
+                # support = []
+                #
+                #
+                #
+                # for a in unacceptable:
+                #     s = [self.theory["arguments"][b]["conclusion"] for b in self.theory["arguments"][a]["last_sub_arguments"]]
+                #
+                #     if len(s) == len(premises):
+                #         support.append(s)
+                #
+                #
+                # for i in range(len(support)):
+                #     if len(support[i]) == len(vars_to_fill):
+                #         for c in support[i]:
+                #             content_spec = term.get_term_specification(c)
+                #             entry = dictionary.get_entry(self.dialogue_id, content_spec[0],content_spec[2])
+                #             however.extend(entry)
+                #
+                # # need to find non-atomic args that conclude this
+                # for a in acceptable:
+                #     acceptable_check = [b for b in self.theory["arguments"][a]["last_sub_arguments"] if b in self.theory["extensions"][0]]
+                #     if len(acceptable_check) == len(premises):
+                #         content.append([self.theory["arguments"][a]["conclusion"] for a in acceptable_check])
+                #
+                # for i in range(len(content)):
+                #     if len(content[i]) == len(vars_to_fill):
+                #         var_map = dict(zip(vars_to_fill, content[i]))
+                #         s = []
+                #
+                #         for c in content[i]:
+                #             content_spec = term.get_term_specification(c)
+                #             entry = dictionary.get_entry(self.dialogue_id, content_spec[0],content_spec[2])
+                #             s.extend(entry)
+                #
+                #         statements = []
+                #
+                #         if however:
+                #             for statement in s:
+                #                 statement["text"] = however[0]["text"] + " however " + statement["text"]
+                #                 statements.append(statement)
+                #         else:
+                #             statements = s
+                #
+                #         to_return.append({
+                #             "content": var_map,
+                #             "statements": statements
+                #         })
         elif query[0] == "[" and query[-1] == "]" and len(vars_to_fill) == 1:
             query = query[1:-1]
             query_spec = term.get_term_specification(query)
@@ -195,14 +256,43 @@ class Argument(ContentDescriptor):
         else:
             return None
 
-    def get_arguments_matching_conclusion(self, conclusion):
-        to_return = []
-        conclusion_spec = term.get_term_specification(conclusion)
+    def get_arguments_with_conclusion(self, conclusion, acceptable=False):
+        if acceptable:
+            return {label:argument for label, argument in self.theory["arguments"].items() if argument["conclusion"]==conclusion and label in self.theory["extensions"][0]}
+        else:
+            return {label:argument for label, argument in self.theory["arguments"].items() if argument["conclusion"]==conclusion}
+
+    def get_similar_arguments(self, input, acceptable=False):
+        similar = {}
+
+        input_spec = term.get_term_specification(input)
 
         for label, arg in self.theory["arguments"].items():
-            arg_conclusion_spec = term.get_term_specification(arg["conclusion"])
+            conclusion = arg["conclusion"]
 
-            if conclusion_spec[0] == arg_conclusion_spec[0] and conclusion_spec[1] == arg_conclusion_spec[1]:
+            if input == conclusion:
+                continue
+
+            conclusion_spec = term.get_term_specification(conclusion)
+
+            if input_spec[0] == conclusion_spec[0] and input_spec[1] == conclusion_spec[1]:
+                similar[label] = arg
+
+        return similar
+
+    def get_arguments_matching_conclusion(self, input):
+        to_return = []
+        input_spec = term.get_term_specification(input)
+
+        for label, arg in self.theory["arguments"].items():
+            conclusion = arg["conclusion"]
+
+            if conclusion == input:
+                continue
+
+            arg_conclusion_spec = term.get_term_specification(conclusion)
+
+            if input_spec[0] == arg_conclusion_spec[0] and input_spec[1] == arg_conclusion_spec[1]:
                 to_return.append(label)
 
         return to_return

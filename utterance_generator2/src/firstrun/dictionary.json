@@ -1,0 +1,93 @@
+{
+  "contentID": "abc",
+  "entries": {
+    "prepropose": [
+      {
+        "text": "Now we need to decide how many steps would be a challenging but achievable goal for you in the long-term.",
+        "properties": []
+      },
+      {
+        "text": "OK then",
+        "properties": [
+          "lastmove:rejectgoaltoohigh"
+        ]
+      }
+    ],
+    "set_long_term_goal(X)": [
+      {
+        "text": "Should we start with a long-term goal of $X steps?",
+        "properties": []
+      },
+      {
+        "text": "I would like to suggest a long-term goal of $X steps per day. Is that OK?",
+        "properties": [
+          "previousmove:rejectgoaltoohigh"
+        ]
+      },
+      {
+        "text": "So, how do you feel about $X steps per day?",
+        "properties": [
+          "lastmove:justifygoal"
+        ]
+      }
+    ],
+    "challenge_goal(X)": [
+      {
+        "text": "Why do you suggest that?",
+        "properties": [
+          "previousmove:!justifygoal{2}"
+        ]
+      }
+    ],
+    "recommended(X)": [
+      {
+        "text": "There is a general trend to recommend $X steps as a daily goal",
+        "properties": []
+      }
+    ],
+    "suggested(X)": [
+      {
+        "text": "for people aged 65 or above, this value is often reduced to $X steps.",
+        "properties": [
+          "{userAge}>65"
+        ]
+      }
+    ],
+    "accept_goal(X)": [
+      {
+        "text": "Yes, let's do that",
+        "properties": []
+      }
+    ],
+    "reject_too_high(X)": [
+      {
+        "text": "That sounds difficult, could we set my goal a bit lower?",
+        "properties": []
+      }
+    ],
+    "goal_accepted(X)": [
+      {
+        "text": "That is great! So, we are working towards $X steps per day on the long run.",
+        "properties": []
+      }
+    ],
+    "interject": [
+      {
+        "text": "Group activities are a great way to motivate you to reach your physical activity goal. You might even meet some interesting new people!",
+        "properties": []
+      }
+    ],
+    "end": [
+      {
+        "text": "Yes, that's true, <<lastspeaker>>. Now our next step is to set a smaller and achievable short-term goal together, so we can slowly work up to to your final goal!",
+        "properties": [
+          "lastmove:interject"
+        ]
+      },
+      {
+        "text": "Now our next step is to set a smaller and achievable short-term goal together, so we can slowly work up to to your final goal!",
+        "properties": []
+      }
+    ]
+  }
+}
