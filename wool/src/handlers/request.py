@@ -56,7 +56,8 @@ class WoolRequestHandler:
                 "source": "wool",
                 "dialogueID": dialogueID,
                 "authToken": authToken,
-                "participants": {p["player"].lower(): p["name"] for p in participants}
+                "participants": {p["player"].lower(): p["name"] for p in participants},
+                "terminal_moves": []
             }
             move_data = self.start_dialogue(topic, agent)
 
@@ -120,6 +121,8 @@ class WoolRequestHandler:
                     response = self.progress_dialogue(str(dialogue_data["replyID"]))
                     if response is not None:
                         self.dialogue["moveData"] = response
+                    else:
+                        return {"status":"terminated","dialogueID": dialogueID, "moves":{}}
 
             else:
                 # need to advance the dialogue
@@ -221,6 +224,10 @@ class WoolRequestHandler:
         :rtype: dict
         """
         response = self.wool_request("progress-dialogue", qs={"replyId": moveID})
+
+        if response["value"] == None:
+            return None
+
         return self.get_moves_from_response(response["value"])
 
     def get_moves_from_response(self, response):
@@ -232,6 +239,7 @@ class WoolRequestHandler:
         :return: the moves
         :rtype: dict
         """
+        self.dialogue["terminal_moves"] = []
         to_return = {"moves": {}, "replies": [], "replyID": 0}
 
         if response is not None:

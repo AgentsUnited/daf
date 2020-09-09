@@ -1,7 +1,7 @@
 import pymongo
 import os
 
-database = "couch_content" #os.getenv("MONGODB")
+database = "agents_united2" #os.getenv("MONGODB")
 host = "mongodb"
 
 def get_db():
