@@ -149,21 +149,31 @@ daf_test_protocol.process_incoming_moves = function(moves){
 
   console.log(participants);
   console.log(moves);
+  k = 0;
 
   for(var i=0;i<participants.length;i++){
 
     var _moves = moves[participants[i]];
+
+    console.log("MOVES");
+    console.log(_moves);
+
     var d = $("<div />").css("border-bottom","1px solid black").css("width","50%");
 
     for(var j=0;j<_moves.length;j++){
 
-      if(_moves[j]["opener"]=="{INPUT}"){
-        _moves[j]["reply"]["p"] = "name(Mark Snaith)"
-        _moves[j]["opener"] = "My name is Mark Snaith"
-      }
+      console.log("Processing move");
+      console.log(_moves[j]);
 
+      console.log({
+        moveID: _moves[j]["moveID"],
+        speaker: participants[i],
+        target: _moves[j]["target"],
+        reply: _moves[j]["reply"],
+        vars: _moves[j]["vars"]
+      });
 
-      available_moves[j] = {
+      available_moves[k] = {
         moveID: _moves[j]["moveID"],
         speaker: participants[i],
         target: _moves[j]["target"],
@@ -171,12 +181,16 @@ daf_test_protocol.process_incoming_moves = function(moves){
         vars: _moves[j]["vars"]
       }
 
-      var btn = $("<button />").attr("id", j).addClass("response_button").html(_moves[j]["opener"]).on("click", function(){
+      console.log("Current available moves");
+      console.log(available_moves);
+
+      var btn = $("<button />").attr("id", k).addClass("response_button").html(_moves[j]["opener"]).on("click", function(){
         daf_test_protocol.prepare_send_move($(this).attr("id"));
         $(this).parent().html($(this).html());
         $(".response_button").remove();
       });
       d.append(btn).append("<br />");
+      k++;
     }
     content[participants[i]] = d;
   }
@@ -191,8 +205,12 @@ daf_test_protocol.process_incoming_moves = function(moves){
 }
 
 daf_test_protocol.prepare_send_move = function(moveID){
+
   var move = available_moves[moveID];
   var vars = move["vars"];
+
+  console.log("Sending move");
+  console.log(move);
 
   if(Object.keys(vars).length==0){
     /* Send the move without updating vars */

@@ -220,6 +220,7 @@ class Moves:
             i = i+1
 
         new_statements = [statements[i] for i in range(len(statements)) if properties_satisfied[i] == highest]
+        print(new_statements)
 
 
         print(properties_satisfied)
