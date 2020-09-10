@@ -129,6 +129,8 @@ class WoolRequestHandler:
                 response = self.progress_dialogue(data["moveID"])
                 if response is not None:
                     self.dialogue["moveData"] = response
+                else:
+                    return {"status":"terminated","dialogueID": dialogueID, "moves":{}}
 
         self.save_dialogue()
 
