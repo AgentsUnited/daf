@@ -3,6 +3,23 @@ import requests
 import json
 import mongo
 
+_topic_map = {
+    "introduction":{
+            "carlos": "carlos-social-introduction",
+            "olivia": "olivia-social-introduction",
+            "emma": "olivia-social-introduction"
+            },
+    "goalsetting1":{
+            "olivia": "olivia-coaching-goalsetting-1"
+            },
+    "gatherinformation":{
+            "olivia": "olivia-coaching-sensors-weight"
+            },
+    "feedback":{
+            "olivia":  "olivia-coaching-feedback-weight"
+            }
+}
+
 @daf.message_handler("WOOL/requests", "WOOL/response")
 class WoolRequestHandler:
     """
@@ -32,6 +49,7 @@ class WoolRequestHandler:
 
         if dialogueID is not None and username is not None and topic is not None and participants is not None:
             authToken = user_data.get("authToken", None)
+            topic = topic.lower()
 
             # get the "agent" participant
             agent = None
@@ -59,7 +77,12 @@ class WoolRequestHandler:
                 "participants": {p["player"].lower(): p["name"] for p in participants},
                 "terminal_moves": []
             }
-            move_data = self.start_dialogue(topic, agent)
+            concrete_topic = self.get_topic(topic, participants)
+
+            if concrete_topic is None:
+                return {}
+
+            move_data = self.start_dialogue(concrete_topic, agent)
 
             if move_data is None:
                 return {}
@@ -136,6 +159,32 @@ class WoolRequestHandler:
 
         return self.handle_moves("moves", data)
 
+    def get_topic(self, topic, participants):
+        """
+        Get the concrete topic of the dialogue based on the topic and participants
+
+        :param topic: the topic of the dialogue
+        :param participants: the set of participants
+        :type topic: str
+        :type participants: list
+        :return: the concrete topic
+        :rtype: str
+        """
+        name = None
+        for p in participants:
+            if p.get("player","").lower() == "agent":
+                name = p.get("name").lower()
+                break
+
+        print(_topic_map)
+        print("Finding {} for topic{}".format(name,topic))
+
+        if name is not None:
+            return _topic_map[topic][name]
+
+        return None
+
+
     def load_dialogue(self, dialogueID):
         """
         Load a dialogue with the given dialogueID
@@ -209,7 +258,7 @@ class WoolRequestHandler:
 
         # TODO: take topic and agent and select dialogue
 
-        response = self.wool_request("start-dialogue", qs={"dialogueName": "carlos-social-introduction", "language":"en"})
+        response = self.wool_request("start-dialogue", qs={"dialogueName": topic, "language":"en"})
 
         if response is not None:
             return self.get_moves_from_response(response)
