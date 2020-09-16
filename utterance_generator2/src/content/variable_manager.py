@@ -61,7 +61,7 @@ def insert_values(auth_token, input):
 
     if matches:
         for m in matches:
-            value = get_value(variable)
+            value = get_value(auth_token, m)
             if value is not None:
                 input = input.replace("{{{{{var}}}}}".format(var=m), value)
 
@@ -75,47 +75,89 @@ def get_clear_vars(topic):
     to_return = []
 
     col = mongo.get_column("variables")
-    result = col.find_one({"topic": topic})
+    result = col.find({"topic": topic})
 
-    if result and "variables" in result:
-        for move_name, variables in result["variables"].items():
-            for name, parameters in variables.items():
-                if parameters.get("clear_on_new",False) == True:
-                    to_return.append(name)
+    if result:
+        for r in result:
+            if "variables" in r:
+                for move_name, variables in r["variables"].items():
+                    for name, parameters in variables.items():
+                        if parameters.get("clear_on_new",False) == True:
+                            to_return.append(name)
 
     return to_return
+
+
+def evaluate_value(auth_token, expr):
+    """
+    Determines the value based on a '[]' expression
+    """
+
+    regex = r"\[([^=!]+)(!?=)(.*)\?([^:]+)(?::(.*))?\]"
+
+    matches = re.findall(regex, expr)
+
+    if matches:
+        expression = matches[0][0]
+        comparison = matches[0][1]
+        value = matches[0][2]
+        if_true = matches[0][3]
+        if len(matches[0]) > 4:
+            if_false = matches[0][4]
+        else:
+            if_false = ""
+
+        expression = insert_values(auth_token, expression)
+
+        if comparison == "=":
+            negate = False
+        else:
+            negate = True
+
+        if expression == value and not negate:
+            return if_true
+        else:
+            return if_false
+
+    return ""
 
 def get_move_vars(topic, move_name, reply, auth_token=None):
     """
     Gets the variables that the given move in the given topic should store,
     then adds values based on the reply (if required)
     """
-
     to_return = {}
 
     col = mongo.get_column("variables")
-    result = col.find_one({"topic": topic})
+    result = col.find({"topic": topic})
 
-    if result is not None and "variables" in result:
-        for name, var in result["variables"].get(move_name, {}).items():
-            value = var.get("value","")
-            if auth_token is not None:
-                name = insert_values(auth_token, name)
+    if result is not None:
+        for r in result:
+            if "variables" in r:
+                for name, var in r["variables"].get(move_name, {}).items():
+                    value = var.get("value","")
+                    if auth_token is not None:
+                        name = insert_values(auth_token, name)
 
-            append = False
-            if "append" in var and type(var["append"]) == bool:
-                append = var["append"]
+                    append = False
+                    if "append" in var and type(var["append"]) == bool:
+                        append = var["append"]
 
-            if value[0] == "$":
-                if value[1:] in reply:
-                    value = reply[value[1:]]
+                    if type(value) is str:
 
-                    matches = re.findall(re.compile(r"(?:[^() ])+\(([^()]+)\)"), value)
-                    if matches:
-                        value = matches[0]
-                else:
-                    value = ""
+                        if value[0] == "[" and value[-1] == "]":
+                            value = evaluate_value(auth_token, value)
 
-            to_return[name] = {"append": append, "value": value}
+                        if value[0] == "$":
+                            if value[1:] in reply:
+                                value = reply[value[1:]]
+
+                                matches = re.findall(re.compile(r"(?:[^() ])+\(([^()]+)\)"), value)
+                                if matches:
+                                    value = matches[0]
+                            else:
+                                value = ""
+
+                    to_return[name] = {"append": append, "value": value}
 
     return to_return

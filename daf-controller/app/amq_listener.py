@@ -4,9 +4,9 @@ import os
 import uuid
 
 _dialogue_topic_map = {
-    "goalsetting": "FILSTANTIATOR",
+    "goalsetting": "UG",
     "introduction": "WOOL",
-    "agenttest": "FILSTANTIATOR",
+    "agenttest": "UG",
     "goalsetting1": "WOOL",
     "gatherinformation":"WOOL"
 }

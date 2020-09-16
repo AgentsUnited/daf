@@ -1,8 +1,9 @@
 import daf
 import dialogue
 import user
+from .moves import Moves
 
-@daf.message_handler("FILSTANTIATOR/requests")
+@daf.message_handler("UG/requests")
 class Request:
 
     forward = "DGEP/requests"
@@ -24,7 +25,8 @@ class Request:
         participants = data.get("participants", [])
         agents = {agent["name"]: agent for agent in participants if agent.get("type",None) == "agent"}
 
-        data["sessionID"] = dialogue.new_dialogue(data["topic"],
+        data["sessionID"] = dialogue.new_dialogue(data.get("dialogueID", None),
+                                      data["topic"],
                                       data.get("contentID", None),
                                       auth_token,
                                       agents)

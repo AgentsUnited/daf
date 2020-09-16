@@ -67,6 +67,7 @@ class Argument(ContentDescriptor):
             c = contrary.split(symbol)
             for i in range(2):
                 c[i] = variable_manager.insert_values(auth_token,c[i])
+                print("NEW CONTRARY: " + str(c[i]))
 
             system.add_contrary((c[0],c[1]),contradiction)
 
@@ -144,6 +145,8 @@ class Argument(ContentDescriptor):
                     if statements:
                         however = []
                         similar = self.get_similar_arguments(conclusion)
+
+                        print("Similar arguments: " + str(similar))
 
                         for label, arg in similar.items():
                             for sub_arg in arg["last_sub_arguments"]:
@@ -267,6 +270,8 @@ class Argument(ContentDescriptor):
 
         input_spec = term.get_term_specification(input)
 
+        print("Input spec: " + str(input_spec))
+
         for label, arg in self.theory["arguments"].items():
             conclusion = arg["conclusion"]
 
@@ -274,6 +279,7 @@ class Argument(ContentDescriptor):
                 continue
 
             conclusion_spec = term.get_term_specification(conclusion)
+            print("Conclusion spec: " + str(conclusion_spec))
 
             if input_spec[0] == conclusion_spec[0] and input_spec[1] == conclusion_spec[1]:
                 similar[label] = arg

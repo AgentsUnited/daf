@@ -48,7 +48,7 @@ daf_test_protocol.run = function(){
   daf_ui.append(d);
 
   /* Request the protocols from the DAF and listen for a response */
-  amq.send(JSON.stringify({'cmd':'protocols', 'params':{}}), amq.requests, amq.response, function(message){
+  amq.send(JSON.stringify({'cmd':'protocols', 'params':{"platform":"UG"}}), amq.requests, amq.response, function(message){
       var response = JSON.parse(message.body);
 
       console.log(response);

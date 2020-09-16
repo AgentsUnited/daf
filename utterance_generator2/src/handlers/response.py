@@ -3,7 +3,7 @@ import dialogue
 from content import variable_manager
 from handlers.moves import Moves
 
-@daf.message_handler("DGEP/response", "FILSTANTIATOR/response")
+@daf.message_handler("DGEP/response", "UG/response")
 class Response:
 
     @daf.command_handler("new")

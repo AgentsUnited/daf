@@ -31,8 +31,9 @@ daf_edit_protocol.run = function(){
 
   var msg = {
     cmd: "protocols",
-    params: {}
+    params: {"platform":"UG"}
   };
+  console.log(msg);
 
 
   amq.send(JSON.stringify(msg), amq.requests, amq.response, function(message){

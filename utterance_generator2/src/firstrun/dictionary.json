@@ -3,7 +3,7 @@
   "entries": {
     "prepropose": [
       {
-        "text": "Now we need to decide how many steps would be a challenging but achievable goal for you in the long-term.",
+        "text": "Now we need to decide how many steps would be a challenging but achievable goal for you in the {{currentGoal}}.",
         "properties": []
       },
       {
@@ -11,17 +11,29 @@
         "properties": [
           "lastmove:rejectgoaltoohigh"
         ]
+      },
+      {
+        "text": "Wonderful to hear that you are willing to try a bit more!",
+        "properties": [
+          "lastmove:rejectgoaltoolow"
+        ]
       }
     ],
-    "set_long_term_goal(X)": [
+    "set_{{currentGoal}}Goal(X)": [
       {
-        "text": "Should we start with a long-term goal of $X steps?",
+        "text": "Should we start with a {{currentGoal}} goal of $X steps?",
         "properties": []
       },
       {
-        "text": "I would like to suggest a long-term goal of $X steps per day. Is that OK?",
+        "text": "I would like to suggest a {{currentGoal}} goal of $X steps per day. Is that OK?",
         "properties": [
           "previousmove:rejectgoaltoohigh"
+        ]
+      },
+      {
+        "text": "So, what about $X steps per day? Remember, we are not talking about long-term goals, but about your goal for tomorrow.",
+        "properties": [
+          "previousmove:rejectgoaltoolow"
         ]
       },
       {
@@ -29,6 +41,12 @@
         "properties": [
           "lastmove:justifygoal"
         ]
+      }
+    ],
+    "long_term_goal(X)": [
+      {
+        "text": "Currently you have $X steps daily as a long-term goal. However, we need to build up to that point.",
+        "properties": []
       }
     ],
     "challenge_goal(X)": [
@@ -51,6 +69,12 @@
         "properties": [
           "{userAge}>65"
         ]
+      },
+      {
+        "text": "Currently you have {{agreedlongTermGoal}} steps daily as a long-term goal. However, we need to build up to that point",
+        "properties": [
+          "{{currentGoal}}:shortTerm"
+        ]
       }
     ],
     "accept_goal(X)": [
@@ -65,6 +89,12 @@
         "properties": []
       }
     ],
+    "reject_too_low(X)": [
+      {
+        "text": "That sounds too easy, can we set my goal a bit higher?",
+        "properties": []
+      }
+    ],
     "goal_accepted(X)": [
       {
         "text": "That is great! So, we are working towards $X steps per day on the long run.",
@@ -74,7 +104,9 @@
     "interject": [
       {
         "text": "Group activities are a great way to motivate you to reach your physical activity goal. You might even meet some interesting new people!",
-        "properties": []
+        "properties": [
+          "{{currentGoal}}:longTerm"
+        ]
       }
     ],
     "end": [
@@ -86,7 +118,16 @@
       },
       {
         "text": "Now our next step is to set a smaller and achievable short-term goal together, so we can slowly work up to to your final goal!",
-        "properties": []
+        "properties": [
+          "{{currentGoal}}:longTerm",
+          "lastmove:!interject"
+        ]
+      },
+      {
+        "text": "Now that we have set a smaller and achievable short-term goal together, we can take one small step to slowly work up to to your final goal!",
+        "properties": [
+          "{{currentGoal}}:shortTerm"
+        ]
       }
     ]
   }

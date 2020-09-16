@@ -4,7 +4,7 @@ import mongo
 import re
 from content import Statement, content_locator, variable_manager
 
-@daf.message_handler("DGEP/moves", "FILSTANTIATOR/dialogue_moves")
+@daf.message_handler("DGEP/moves", "UG/response")
 class Moves:
 
     @daf.command_handler("moves")
@@ -52,7 +52,7 @@ class Moves:
 
                                 variables = variable_manager.get_move_vars(dialogue.get_topic(dialogue_id), move_id, new_reply, dialogue.get_auth_token(dialogue_id))
 
-                                for statement in self.filter_statements(c["statements"], history):
+                                for statement in self.filter_statements(c["statements"], history, dialogue.get_auth_token(dialogue_id)):
                                     new_move = self.build_new_move(move["moveID"],
                                                                    new_reply,
                                                                    statement["text"],
@@ -64,7 +64,7 @@ class Moves:
                         s = Statement(dialogue_id, move, descriptors, history)
                         statements = s.find_statements()
                         variables = variable_manager.get_move_vars(dialogue.get_topic(dialogue_id), move_id, move.get("reply",{}), dialogue.get_auth_token(dialogue_id))
-                        for statement in self.filter_statements(statements, history):
+                        for statement in self.filter_statements(statements, history, dialogue.get_auth_token(dialogue_id)):
                             new_move = self.build_new_move(move["moveID"],
                                                            move.get("reply",{}),
                                                            statement["text"],
@@ -93,12 +93,15 @@ class Moves:
         """
         topic = dialogue.get_topic(dialogue_id)
 
+        to_return = []
+
         col = mongo.get_column("content_descriptors")
-        result = col.find_one({"protocol": topic})
+        result = col.find({"protocol": topic})
 
         if result is not None:
-            if move_id in result["descriptors"]:
-                return result["descriptors"][move_id]
+            for r in result:
+                if move_id in r["descriptors"]:
+                    return r["descriptors"][move_id]
 
         return None
 
@@ -119,7 +122,7 @@ class Moves:
             "vars": vars
         }
 
-    def filter_statements(self, statements, history):
+    def filter_statements(self, statements, history, auth_token):
         """
         TODO: various filtering methods for statements based on properties
         """
@@ -189,8 +192,19 @@ class Moves:
                 if ":" in property:
                     parts = property.split(":")
 
+                    print("PARTS: " + str(parts))
+
+                    result = False
+
                     if parts[0] in handlers:
                         result = handlers[parts[0]](parts[1], previous_moves)
+                    elif parts[0][:2] == "{{":
+                        print("FOUND VARIABLE!!")
+                        v = variable_manager.insert_values(auth_token, parts[0])
+                        if v == parts[1]:
+                            result = True
+                    else:
+                        result = False
 
                     if result:
                         properties_satisfied[i] = properties_satisfied[i] + 1

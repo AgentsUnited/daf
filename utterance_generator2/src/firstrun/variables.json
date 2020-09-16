@@ -2,7 +2,7 @@
   "topic": "goalsetting",
   "variables": {
     "acceptgoal": {
-      "agreedGoal": {
+      "agreed{{currentGoal}}Goal": {
         "append": false,
         "value": "$p",
         "clear_on_new": true
@@ -20,6 +20,17 @@
         "append": true,
         "value": "$p",
         "clear_on_new": true
+      }
+    },
+    "end": {
+      "{{currentGoal}}Set": {
+        "append": false,
+        "value": true,
+        "clear_on_new": false
+      },
+      "currentGoal": {
+        "append": false,
+        "value": "[{{currentGoal}}=longTerm?shortTerm:longTerm]"
       }
     }
   }

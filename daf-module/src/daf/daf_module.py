@@ -12,6 +12,15 @@ message_handlers = {}
 command_handlers = {}
 default_command_handlers = {}
 
+options = {}
+
+def set_option(option, value):
+    """
+    Sets the given option with the given value
+    Ensures that all option names are set to UPPERCASE
+    """
+    options[option.upper()] = value
+
 def message_handler(topic, response_topic=None, respond=True):
     """
     Defines a decorator to define a class as a message handler
@@ -90,21 +99,25 @@ class Module(stomp.ConnectionListener):
 
                 if handler is not None:
                     response_topic = handler["response_topic"]
-                    if response_topic is None:
-                        return #no point in continuing if we aren't responding
 
                     handler = handler["handler"]()
+                    handler.destination = destination
 
                     handler_class = handler.__class__.__name__
 
                     input = json.loads(body)
                     command = input.get("cmd",None)
 
+                    if "params" not in input and "response" not in input:
+                        params = {key: value for key,value in input.items() if key != "cmd"}
+                        input["params"] = params
+
                     if command is not None:
                         command_handler = command_handlers.get(handler_class, {}).get(command, None)
 
                         if command_handler is not None:
-                            response = command_handler["fn"](handler, command, input.get("params",input.get("response")))
+                            data = input.get("params", input.get("response", {}))
+                            response = command_handler["fn"](handler, command, data)
 
                             if command_handler["forward_topic"] is not None:
                                 response_topic = command_handler["forward_topic"]
@@ -116,7 +129,10 @@ class Module(stomp.ConnectionListener):
                                 response = default_command_handlers[handler_class](handler, command, input.get("params",input.get("response")))
 
                         if response is not None and response_topic is not None:
-                            response = json.dumps({"cmd": command, keyword: response})
+                            if options.get("RESPOND_WITH_COMMAND",True):
+                                response = {"cmd": command, keyword: response}
+
+                            response = json.dumps(response)
                             self.send_message(response, response_topic)
 
                         # if handler_class in command_handlers:

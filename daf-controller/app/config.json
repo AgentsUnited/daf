@@ -3,7 +3,7 @@
     {
       "from": "DGEP/requests",
       "to": [
-        "FILSTANTIATOR/requests"
+        "UG/requests"
       ]
     },
     {
@@ -16,7 +16,7 @@
   ],
   "outgoing": [
     {
-      "from": "FILSTANTIATOR/response",
+      "from": "UG/response",
       "to": [
         "DGEP/response"
       ]

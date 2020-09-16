@@ -20,7 +20,7 @@ class DGEP(DialogueManager):
 
         self.interfaces = []
 
-        self.dialogues = []
+        self.dialogues = {}
         self.loaded_plugins = {}
 
         self.amq = None
@@ -40,7 +40,7 @@ class DGEP(DialogueManager):
             id = f.split('.')[0]
             p = pickle.load(open(dialogues_path + "/" + f, 'rb'))
             p.dgep = self
-            self.dialogues.insert(int(id), p)
+            self.dialogues[int(id)] = p
 
     def add_interface(self, interface):
         if isinstance(interface, DGEPInterface):
@@ -101,13 +101,16 @@ class DGEP(DialogueManager):
                 if not s.start():
                     return {"error": s.last_error, "source":"system"}
 
-                self.dialogues.append(s)
-                dialogueID = len(self.dialogues)
+                # self.dialogues.append(s)
+                # dialogueID = len(self.dialogues)
+                dialogueID = data.get("dialogueID", len(self.dialogues.values())) # a dialogueID might be set in the incoming request
+
+                self.dialogues[dialogueID] = s
 
                 p = os.path.dirname(os.path.realpath(__file__)) + "/dialogues/" + str(dialogueID) + ".dialogue"
                 pickle.dump(s, open(p, "w+"), protocol=2)
 
-                to_return["dialogueID"] = len(self.dialogues)
+                to_return["dialogueID"] = dialogueID
                 to_return["moves"] = s.get_available_moves()
                 to_return["history"] = []
 
@@ -138,13 +141,14 @@ class DGEP(DialogueManager):
 
     @dgep_endpoint('join', ['dialogueID'])
     def join_dialogue(self, data):
-        dialogueID = int(data["dialogueID"])
-
-        if dialogueID < len(self.dialogues):
-            system = self.dialogues[dialogueID]
-            return {"dialogueID": dialogueID, "protocol": system.name}
-        else:
-            return {"error":"No such dialogue"}
+        return {}
+        # dialogueID = int(data["dialogueID"])
+        #
+        # if dialogueID < len(self.dialogues):
+        #     system = self.dialogues[dialogueID]
+        #     return {"dialogueID": dialogueID, "protocol": system.name}
+        # else:
+        #     return {"error":"No such dialogue"}
 
     @dgep_endpoint('test')
     def test_dgep(self, data):
@@ -154,8 +158,8 @@ class DGEP(DialogueManager):
     def dialogue_moves(self, data):
         dialogueID = int(data["dialogueID"])
 
-        if self.dialogues[dialogueID - 1]:
-            dialogue = self.dialogues[dialogueID - 1]
+        if dialogueID in self.dialogues:
+            dialogue = self.dialogues[dialogueID]
 
             if dialogue.terminated:
                 status = "terminated"
@@ -182,8 +186,8 @@ class DGEP(DialogueManager):
         '''
         dialogueID = data["dialogueID"]
 
-        if self.dialogues[dialogueID-1]:
-            dialogue = self.dialogues[dialogueID - 1]
+        if dialogueID in self.dialogues:
+            dialogue = self.dialogues[dialogueID]
 
             interaction_id = data["moveID"]
 
@@ -229,9 +233,9 @@ class DGEP(DialogueManager):
 
         dialogueID = data["dialogueID"]
 
-        if self.dialogues[dialogueID - 1]:
+        if dialogueID in self.dialogues:
             # deep copy of the dialogue so that changes don't (yet) persist
-            dialogue = copy.deepcopy(self.dialogues[dialogueID - 1])
+            dialogue = copy.deepcopy(self.dialogues[dialogueID])
 
             interaction_id = data["moveID"]
 
@@ -274,8 +278,8 @@ class DGEP(DialogueManager):
 
         interaction_data = self.draft_interaction_data[dialogueID]
 
-        if self.dialogues[dialogueID - 1]:
-            dialogue = self.dialogues[dialogueID - 1]
+        if dialogueID in self.dialogues:
+            dialogue = self.dialogues[dialogueID]
 
             effects = dialogue.perform_interaction(interaction_data["interaction_id"], interaction_data["interaction_data"])
 

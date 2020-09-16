@@ -66,6 +66,7 @@ def run():
             external_conn.connect()
 
             for topic in load_topics("incoming"):
+                print("Subscribing to: " + topic)
                 external_conn.subscribe(destination='/topic/' + topic, ack='auto', id=1)
 
             print("Connected to external ActiveMQ")

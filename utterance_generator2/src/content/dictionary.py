@@ -7,8 +7,6 @@ def get_entry(dialogue_id, entry, parameters=None):
     Get an entry from the dictionary for the given statement
     """
 
-    print("Finding entry: " + str(entry))
-
     content_id = dialogue.get_content_id(dialogue_id)
 
     to_return = []
@@ -18,15 +16,14 @@ def get_entry(dialogue_id, entry, parameters=None):
     dictionary = {}
     auth_token = dialogue.get_auth_token(dialogue_id)
 
-    result = mongo.get_column("dictionary").find_one({"contentID": content_id})
+    result = mongo.get_column("dictionary").find({"contentID": content_id})
 
     if result:
-        for key, value in result.get("entries", {}).items():
-            _term = term.get_term_specification(key)
-
-            t = variable_manager.insert_values(auth_token, _term[0])
-
-            dictionary[t] = {"variables": _term[2], "statements": value}
+        for r in result:
+            for key, value in r.get("entries", {}).items():
+                _term = term.get_term_specification(key)
+                t = variable_manager.insert_values(auth_token, _term[0])
+                dictionary[t] = {"variables": _term[2], "statements": value}
 
     if entry in dictionary:
         entry = dictionary[entry]

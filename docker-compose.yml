@@ -22,7 +22,7 @@ services:
 
  #controller to map external to internal amq topics
  controller:
-   build: ./daf-controller
+   build: ./daf-controller2
    container_name: daf_controller
    depends_on:
    - activemq_internal

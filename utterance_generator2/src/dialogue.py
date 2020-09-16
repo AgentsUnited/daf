@@ -5,7 +5,7 @@ import mongo
 Module to handle dialogue tracking in the utterance generator
 """
 
-def new_dialogue(topic, content=None, auth_token=None, agents=None):
+def new_dialogue(dialogueID, topic, content=None, auth_token=None, agents=None):
     """
     Track a new dialogue, generating a temporary session ID
     """
@@ -23,7 +23,13 @@ def new_dialogue(topic, content=None, auth_token=None, agents=None):
     }
 
     col = mongo.get_column("dialogues")
-    col.insert_one(dialogue)
+    result = col.find_one({"dialogueID": dialogueID})
+
+    if result:
+        dialogue_data = {"content": content, "agents": agents}
+        col.update_one({"dialogueID": dialogueID}, {"$set": {"dialogueData": dialogue_data}})
+
+    #col.insert_one(dialogue)
 
     return session_id
 

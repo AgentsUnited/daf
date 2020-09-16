@@ -53,7 +53,7 @@ var page_load = function(){
 };
 
 var get_protocol_list = function(id, on_change_callback){
-  amq.send(JSON.stringify({'cmd':'protocols', 'params':{}}), amq.requests, amq.response, function(message){
+  amq.send(JSON.stringify({'cmd':'protocols', 'params':{"platform":"UG"}}), amq.requests, amq.response, function(message){
       var response = JSON.parse(message.body);
 
       console.log(response);
