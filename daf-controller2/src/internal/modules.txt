@@ -1,0 +1,5 @@
+# The modules.txt file declares the names of the DAF modules that the controller
+# should expect responses from
+
+WOOL
+UG
