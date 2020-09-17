@@ -71,7 +71,7 @@ class WoolRequestHandler:
 
 
             self.dialogue = {
-                "source": "wool",
+                "platform": "WOOL",
                 "dialogueID": dialogueID,
                 "authToken": authToken,
                 "participants": {p["player"].lower(): p["name"] for p in participants},
