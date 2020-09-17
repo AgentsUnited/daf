@@ -57,7 +57,7 @@ services:
 
  #dung-o-matic: required by utterance_generator
  dung_o_matic:
-   build: ./dung-o-matic
+   image: argtech/dung-o-matic:0.1
    container_name: dungomatic
 
  #mongodb: required by utterance_generator
