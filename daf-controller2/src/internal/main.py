@@ -1,3 +1,4 @@
+import json
 import daf
 import activemq as external
 from .handlers import *
@@ -15,6 +16,8 @@ def init():
                 continue
 
             destination = module + "/response"
+            daf.message_handler(destination, respond=False)(ResponseHandler)()
+            destination = module + "/dialogue_moves"
             daf.message_handler(destination, respond=False)(ResponseHandler)()
 
 if __name__ == '__main__':
