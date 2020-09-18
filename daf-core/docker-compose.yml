@@ -1,0 +1,56 @@
+version: '2'
+
+# Core docker-compose file for the Dialogue and Argumentation Framework
+
+services:
+ #internal activemq service for communication between modules
+ activemq_internal:
+  image: webcenter/activemq:latest
+  container_name: activemq-internal
+
+ #controller to map external to internal amq topics
+ controller:
+   build: ./modules/daf-controller2
+   container_name: daf_controller
+   env_file:
+   - daf-config.env
+
+ #dgep
+ dgep:
+  build: ./modules/dgep
+  container_name: dgep
+  env_file:
+  - daf-config.env
+
+ #wool
+ wool:
+  build: ./modules/wool
+  container_name: wool
+  env_file:
+  - daf-config.env
+
+ #filstantiator
+ utterance_generator:
+  build: ./modules/utterance_generator2
+  container_name: utterance_generator
+  env_file:
+  - daf-config.env
+
+ #dung-o-matic: required by utterance_generator
+ dung_o_matic:
+   image: argtech/dung-o-matic:0.1
+   container_name: dungomatic
+
+ #mongodb
+ mongodb:
+  image: mongo
+  volumes:
+   - mongo-volume:/data/db
+  ports:
+  - "27017:27017"
+  container_name: mongodb
+
+volumes:
+  mongo-volume:
+   external: false
+   driver: local
