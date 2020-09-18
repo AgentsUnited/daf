@@ -51,7 +51,7 @@ class WoolRequestHandler:
             authToken = user_data.get("authToken", None)
             topic = topic.lower()
 
-            # get the "agent" participant
+            # get the "lead" agent: should be the first in the list
             agent = None
 
             for p in participants:
@@ -63,19 +63,29 @@ class WoolRequestHandler:
                 return {"error": "User is not authorised"}
 
             participants_new = []
+            participants_data = {"user": None, "agents": []}
+            agent_count = 0
 
             i = 1
             for p in participants:
                 participants_new.append({"name": p["name"], "participantID": i})
                 i = i+1
 
+                player = p.get("player","").lower()
+                if player == "user":
+                    participants_data["user"] = p.get("name","User")
+                elif player == "agent":
+                    agent_count = agent_count + 1
+                    participants_data["agents"].append(p.get("name","Agent{}".format(str(agent_count))))
 
             self.dialogue = {
                 "platform": "WOOL",
                 "dialogueID": dialogueID,
                 "authToken": authToken,
-                "participants": {p["player"].lower(): p["name"] for p in participants},
-                "terminal_moves": []
+                "dialogueData":{
+                    "participants": participants_data,
+                    "terminal_moves": []
+                }
             }
             concrete_topic = self.get_topic(topic, participants)
 
@@ -87,11 +97,11 @@ class WoolRequestHandler:
             if move_data is None:
                 return {}
 
-            self.dialogue["moveData"] = move_data
+            self.dialogue["dialogueData"]["moveData"] = move_data
             self.save_dialogue()
 
             response = {"dialogueID": dialogueID,
-                        "moves": self.dialogue["moveData"]["moves"],
+                        "moves": self.dialogue["dialogueData"]["moveData"].get("moves", {}),
                         "participants": participants_new,
                         "clearvars": []
             }
@@ -109,7 +119,7 @@ class WoolRequestHandler:
         self.dialogue = self.load_dialogue(dialogueID)
 
         if dialogueID is not None:
-            return {"status":"active","dialogueID": dialogueID, "moves": self.dialogue["moveData"]["moves"]}
+            return {"status":"active","dialogueID": dialogueID, "moves": self.dialogue["dialogueData"]["moveData"]["moves"]}
         else:
             return {}
 
@@ -129,21 +139,21 @@ class WoolRequestHandler:
             if self.dialogue is None:
                 return to_return
 
-            dialogue_data = self.dialogue["moveData"]
+            dialogue_data = self.dialogue["dialogueData"]["moveData"]
             if data["moveID"].lower() == "agentmove":
                 # are there any replies
                 if dialogue_data["replies"]:
-                    user = self.dialogue["participants"]["user"]
-                    self.dialogue["moveData"]["moves"] = {user: []}
-                    self.dialogue["moveData"]["moves"][user] = []
+                    user = self.dialogue["dialogueData"]["participants"]["user"]
+                    self.dialogue["dialogueData"]["moveData"]["moves"] = {user: []}
+                    self.dialogue["dialogueData"]["moveData"]["moves"][user] = []
 
                     for reply in dialogue_data["replies"]:
                         move = {"moveID": str(reply["replyId"]), "target":"", "reply":{}, "opener": " ".join([s["text"] for s in reply["statement"]["segments"]])}
-                        self.dialogue["moveData"]["moves"][user].append(move)
+                        self.dialogue["dialogueData"]["moveData"]["moves"][user].append(move)
                 else:
                     response = self.progress_dialogue(str(dialogue_data["replyID"]))
                     if response is not None:
-                        self.dialogue["moveData"] = response
+                        self.dialogue["dialogueData"]["moveData"] = response
                     else:
                         return {"status":"terminated","dialogueID": dialogueID, "moves":{}}
 
@@ -151,7 +161,7 @@ class WoolRequestHandler:
                 # need to advance the dialogue
                 response = self.progress_dialogue(data["moveID"])
                 if response is not None:
-                    self.dialogue["moveData"] = response
+                    self.dialogue["dialogueData"]["moveData"] = response
                 else:
                     return {"status":"terminated","dialogueID": dialogueID, "moves":{}}
 
@@ -175,9 +185,6 @@ class WoolRequestHandler:
             if p.get("player","").lower() == "agent":
                 name = p.get("name").lower()
                 break
-
-        print(_topic_map)
-        print("Finding {} for topic{}".format(name,topic))
 
         if name is not None:
             return _topic_map[topic][name]
@@ -290,7 +297,7 @@ class WoolRequestHandler:
         :return: the moves
         :rtype: dict
         """
-        self.dialogue["terminal_moves"] = []
+        self.dialogue["dialogueData"]["terminal_moves"] = []
         to_return = {"moves": {}, "replies": [], "replyID": 0}
 
         if response is not None:
