@@ -48,6 +48,7 @@ class DAFRequestHandler:
             platform = self.get_platform(dialogueID)
             if platform is not None:
                 destination = platform + "/requests"
+                print("Sending {} to {}".format(str(data),destination))
                 internal.send_message(destination, {"cmd": command, "params": data})
         else:
             platform = data.get("platform", None)
@@ -55,6 +56,7 @@ class DAFRequestHandler:
                 destination = platform + "/requests"
                 print("Sending {} to {}".format(str(data),destination))
                 internal.send_message(destination, {"cmd": command, "params": data})
+
 
 
     def new_dialogue(self, platform, topic, username):
