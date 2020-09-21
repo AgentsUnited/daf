@@ -29,7 +29,7 @@ class DAFRequestHandler:
                 if dialogueID is not None:
                     data["dialogueID"] = dialogueID
 
-                    if "participants" in data:
+                    if "participants" in data and platform == "UG":
                         new_participants = []
                         for p in data.get("participants"):
                             if p["player"] == "Agent" and p["name"] == "Olivia":
