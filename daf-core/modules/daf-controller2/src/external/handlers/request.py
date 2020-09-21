@@ -20,8 +20,6 @@ class DAFRequestHandler:
             col = mongo.get_column("dialogue_topics")
             result = col.find_one({"topic": topic})
 
-            print(result)
-
             if result:
                 platform = result["platform"].upper()
                 destination = platform + "/requests"
@@ -30,9 +28,20 @@ class DAFRequestHandler:
 
                 if dialogueID is not None:
                     data["dialogueID"] = dialogueID
-                    print("Sending {} to {}".format(str({"cmd": command, "params": data}), destination))
-                    internal.send_message(destination, {"cmd": command, "params": data})
 
+                    if "participants" in data:
+                        new_participants = []
+                        for p in data.get("participants"):
+                            if p["player"] == "Agent" and p["name"] == "Olivia":
+                                p["player"] = "AgentOne"
+                            elif p["player"] == "Agent" and p["name"] == "Emma":
+                                p["player"] = "AgentTwo"
+
+                            new_participants.append(p)
+
+                        data["participants"] = new_participants
+
+                    internal.send_message(destination, {"cmd": command, "params": data})
 
     @daf.command_handler("moves")
     @daf.command_handler("interaction")
@@ -41,20 +50,17 @@ class DAFRequestHandler:
         """
         Handles requests for moves and sending interactions
         """
-        print("Handling command {} with data {}".format(command, str(data)))
         dialogueID = data.get("dialogueID", None)
 
         if dialogueID is not None:
             platform = self.get_platform(dialogueID)
             if platform is not None:
                 destination = platform + "/requests"
-                print("Sending {} to {}".format(str(data),destination))
                 internal.send_message(destination, {"cmd": command, "params": data})
         else:
             platform = data.get("platform", None)
             if platform is not None:
                 destination = platform + "/requests"
-                print("Sending {} to {}".format(str(data),destination))
                 internal.send_message(destination, {"cmd": command, "params": data})
 
 
