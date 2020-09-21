@@ -12,15 +12,24 @@ def get_values(auth_token, variables):
     """
     to_return = {}
 
-    headers = {
-        "content-type": "application/json",
-        "accept": "*/*",
-        "X-Auth-Token": auth_token
-    }
+    if os.getenv("testvars","False") == "True":
+        col = mongo.get_column("test_variables")
 
-    query_string = requests.utils.quote(" ".join(variables))
-    response = requests.get(_content_location + "/variables?names=" + query_string, headers=headers)
-    to_return = json.loads(response.text)
+        for v in variables:
+            result = col.find_one({"name": v})
+
+            if result:
+                to_return[v] = result["value"]
+    else:
+        headers = {
+            "content-type": "application/json",
+            "accept": "*/*",
+            "X-Auth-Token": auth_token
+        }
+
+        query_string = requests.utils.quote(" ".join(variables))
+        response = requests.get(_content_location + "/variables?names=" + query_string, headers=headers)
+        to_return = json.loads(response.text)
 
     return to_return
 
@@ -67,7 +76,7 @@ def insert_values(auth_token, input):
 
     return input
 
-def get_clear_vars(topic):
+def get_clear_vars(auth_token, topic):
     """
     Gets the "clearvars" for the given topic, variables that should be cleared
     when a new dialogue is started using that topic
@@ -83,7 +92,7 @@ def get_clear_vars(topic):
                 for move_name, variables in r["variables"].items():
                     for name, parameters in variables.items():
                         if parameters.get("clear_on_new",False) == True:
-                            to_return.append(name)
+                            to_return.append(insert_values(auth_token, name))
 
     return to_return
 

@@ -15,7 +15,7 @@ class Response:
             dialogue.set_dialogue_id(session_id, dialogue_id)
 
             data = Moves().handle_moves(command, data)
-            data["clearvars"] = variable_manager.get_clear_vars(dialogue.get_topic(dialogue_id))
+            data["clearvars"] = variable_manager.get_clear_vars(dialogue.get_auth_token(dialogue_id), dialogue.get_topic(dialogue_id))
 
         return data
 
