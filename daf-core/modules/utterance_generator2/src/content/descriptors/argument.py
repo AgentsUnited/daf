@@ -26,16 +26,9 @@ class Argument(ContentDescriptor):
         result = col.find_one({"contentID":"abc"})
 
         self.argument_model = result["model"]
-
-
         self.rule_regex = re.compile(r"(\[(?:[^\[\]]+)\])[ ]*(.*)")
-
         self.theory = self.build_theory()
 
-        print("THEORY")
-        print(self.theory)
-
-        print(self.history)
 
 
     def build_theory(self):
@@ -49,8 +42,6 @@ class Argument(ContentDescriptor):
             rule = self.create_aspic_rule(variable_manager.insert_values(auth_token, rule))
             system.add_rule(rule)
             all_antecedents.extend([a[0] for a in term.get_term_specifications(rule.antecedents) if "<" not in a[0]])
-
-        print(all_antecedents)
 
         all_antecedents = list(set(all_antecedents))
 
@@ -67,7 +58,6 @@ class Argument(ContentDescriptor):
             c = contrary.split(symbol)
             for i in range(2):
                 c[i] = variable_manager.insert_values(auth_token,c[i])
-                print("NEW CONTRARY: " + str(c[i]))
 
             system.add_contrary((c[0],c[1]),contradiction)
 
@@ -78,7 +68,6 @@ class Argument(ContentDescriptor):
         kb = pyaspic.KnowledgeBase()
 
         for t in variable_manager.get_terms(auth_token, all_antecedents):
-            print("TERM: " + str(t))
             kb.add_premise(pyaspic.Formula(t))
 
         theory = pyaspic.ArgumentationTheory(system, kb)
@@ -125,13 +114,9 @@ class Argument(ContentDescriptor):
                 arguments = self.get_arguments_with_conclusion(conclusion, True)
                 support = []
 
-                print("Arguments found: " + str(arguments))
-
                 for label,arg in arguments.items():
                     for sub_arg in arg["last_sub_arguments"]:
                         support.append(self.theory["arguments"][sub_arg]["conclusion"])
-
-                print("Support for {}: {}".format(conclusion,str(support)))
 
                 if len(support) == len(vars_to_fill):
                     var_map = dict(zip(vars_to_fill, support))
@@ -145,8 +130,6 @@ class Argument(ContentDescriptor):
                     if statements:
                         however = []
                         similar = self.get_similar_arguments(conclusion)
-
-                        print("Similar arguments: " + str(similar))
 
                         for label, arg in similar.items():
                             for sub_arg in arg["last_sub_arguments"]:
@@ -164,7 +147,7 @@ class Argument(ContentDescriptor):
                                 text = s["text"]
                                 properties = s["properties"]
                                 for h in however:
-                                    new_statement = {"text": "{} however {}".format(h, text), "properties": properties}
+                                    new_statement = {"text": "{}. However, {}".format(h, text), "properties": properties}
                                     new_statements.append(new_statement)
 
                             statements = new_statements
