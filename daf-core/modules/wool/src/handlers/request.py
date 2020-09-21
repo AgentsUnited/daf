@@ -7,7 +7,7 @@ _topic_map = {
     "introduction":{
             "carlos": "carlos-social-introduction",
             "olivia": "olivia-social-introduction",
-            "emma": "olivia-social-introduction"
+            "emma": "emma-social-introduction"
             },
     "goalsetting1":{
             "olivia": "olivia-coaching-goalsetting-1"
