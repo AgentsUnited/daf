@@ -8,7 +8,7 @@ WORKDIR /app
 
 #RUN "/bin/sh -c echo 'python3 -um internal.main & python3 -um external.main' > /app/run.sh"
 
-RUN echo "python3 -um internal.main & python3 -um external.main" >> /app/run.sh
+#RUN echo "python3 -um internal.main & python3 -um external.main" >> /app/run.sh
 
 RUN chmod 777 run.sh
 

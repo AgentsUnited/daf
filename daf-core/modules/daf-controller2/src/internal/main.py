@@ -10,26 +10,22 @@ def demo():
     Function to load in the demo content
     """
     print("Executing DEMO script...")
-    file = "/demo/{file}.json"
+    dir = "/demo"
 
     mongo.drop_db() # clears the demo db; mongo module has a check such that only the demo db can be dropped
-
     db = mongo.get_db()
 
-    collections = ["argument_models", "dictionary", "content_descriptors", "variables", "dialogue_topics"]
+    for file in os.listdir(dir):
+        if file.endswith(".json"):
+            collection = file[:-5]
+            with open(dir + "/" + file, "r") as f:
+                f = json.load(f)
 
-    for c in collections:
-        with open(file.replace("{file}",c), "r") as f:
-            f = json.load(f)
-
-            if type(f) is list:
-                for r in f:
-                    db[c].insert_one(r)
-            else:
-                db[c].insert_one(f)
-
-    db["dialogues"].insert_one({}) # creates dialogues collection
-
+                if type(f) is list:
+                    for r in f:
+                        db[collection].insert_one(r)
+                else:
+                    db[collection].insert_one(f)
 
 def init():
     # the internal listener is a little different; we can't decorate the handler class
@@ -40,11 +36,9 @@ def init():
     result = col.find({})
 
     if result:
-        print("Result from")
         for r in result:
             if "platform" in r:
                 destination = r["platform"] + "/response"
-                print("Subscribing to " + destination)
                 daf.message_handler(destination, respond=False)(ResponseHandler)()
                 destination = r["platform"] + "/dialogue_moves"
                 daf.message_handler(destination, respond=False)(ResponseHandler)()

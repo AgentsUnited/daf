@@ -2,6 +2,7 @@ import re
 import requests
 import os
 import json
+import daf
 from daf import mongo
 
 _content_location = "https://servletstest.rrdweb.nl/wool/v1" #os.getenv('CONTENT_DATABASE')
@@ -66,13 +67,23 @@ def insert_values(auth_token, input):
     they exist
     """
 
-    matches = re.findall(re.compile(r"(?:{{([^{}]+)}})"), input)
+    matches = re.findall(re.compile(r"{{([u,l]:)?([^{}]+)}}"), input)
 
     if matches:
         for m in matches:
-            value = get_value(auth_token, m)
+            daf.log("Got modifier: " + m[0])
+            variable = m[1].strip()
+            value = get_value(auth_token, variable)
+            daf.log("Variable_manager got value: " + value)
             if value is not None:
-                input = input.replace("{{{{{var}}}}}".format(var=m), value)
+                if m[0].strip() == "u:":
+                    value = value[0].upper() + value[1:]
+                    variable = "u:" + variable
+                elif m[0].strip() == "l:":
+                    value = value[0].lower() + value[1:]
+                    variable = "l:" + variable
+
+                input = input.replace("{{{{{var}}}}}".format(var=variable), value)
 
     return input
 

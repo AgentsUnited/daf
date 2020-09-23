@@ -2,10 +2,15 @@
   "topic": "goalsetting",
   "variables": {
     "acceptgoal": {
-      "agreed{{currentGoal}}Goal": {
+      "agreed{{u:currentGoal}}Goal": {
         "append": false,
         "value": "$p",
         "clear_on_new": true
+      },
+      "pa{{u:currentGoal}}{{u:paCurrentGoalType}}Goal": {
+        "append": false,
+        "value": "$p",
+        "clear_on_new": false
       }
     },
     "rejectgoaltoohigh": {

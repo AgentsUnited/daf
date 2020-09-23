@@ -3,7 +3,7 @@ version: '3'
 # Core docker-compose file for the Dialogue and Argumentation Framework
 
 services:
- #external activemq service for outside communication
+ # external activemq service for outside communication
  activemq_external:
   image: webcenter/activemq:latest
   container_name: activemq-external

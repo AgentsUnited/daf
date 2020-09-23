@@ -5,6 +5,8 @@ import json
 import sys
 import os
 import threading
+import logging
+import socket
 
 amq_host = None
 
@@ -13,6 +15,20 @@ command_handlers = {}
 default_command_handlers = {}
 
 options = {}
+
+##
+# set the log stuff
+_logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+_logger.addHandler(handler)
+
+def log(msg):
+    _logger.info(msg)
 
 def set_option(option, value):
     """
@@ -79,6 +95,7 @@ class Module(stomp.ConnectionListener):
     """
     def __init__(self):
         self.amq_host = None
+        self.name = "DAF-module"
 
     def handle_default(self, data):
         pass
@@ -87,8 +104,11 @@ class Module(stomp.ConnectionListener):
         """
         Handle an incoming ActiveMQ message
         """
+
         try:
             destination = headers.get("destination", "").replace("/topic/","")
+
+            log("Received message {} sent to {}".format(body, destination))
 
             if destination in message_handlers:
                 response = None
@@ -133,7 +153,7 @@ class Module(stomp.ConnectionListener):
                                 response = {"cmd": command, keyword: response}
 
                             response = json.dumps(response)
-                            self.send_message(response, response_topic)
+                            self.send_message(message=response, topic=response_topic)
 
                         # if handler_class in command_handlers:
                         #
@@ -152,20 +172,22 @@ class Module(stomp.ConnectionListener):
                         #         response = json.dumps({"cmd": command, keyword: response})
                         #         self.send_message(response, response_topic)
         except:
-            print("Error")
+            _logger.exception("Error")
             traceback.print_exc()
 
     def send_message(self, message, topic):
-        print("Sending: {} to {}".format(message,topic))
+        log("Sending message: {} to {}".format(message,topic))
         conn = stomp.Connection12([self.amq_host], auto_content_length=False)
         conn.connect('admin', 'admin', wait=True)
         conn.send(destination='/topic/' + topic, body=message, headers = {"ttl": 30000})
         conn.disconnect()
 
-    def run(self, host=('activemq-internal', 61613), thread=False):
+    def run(self, name="DAF-module", host=('activemq-internal', 61613), thread=False):
         """
         Runs this module on the given activeMQ host
         """
+
+        self.name = name
         # inner function for looping: required for threading
         def loop():
             while True:
@@ -178,30 +200,44 @@ class Module(stomp.ConnectionListener):
         f = open(os.devnull, 'w')
         sys.stderr = f
 
-        while True:
-            try:
-                conn = stomp.Connection12([host])
-                conn.set_listener('DAFModuleListener', self)
-                conn.connect()
 
-                i = 1
-                for topic in message_handlers:
-                    print("Subscribing to: " + "/topic/" + topic)
-                    conn.subscribe(destination="/topic/" + topic, ack="auto", id=i)
-                    i = i + 1
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        tries = 0
+
+        while True or tries > 4:
+            result = s.connect_ex(host)
+
+            if result == 0:
                 break
-            except stomp.exception.ConnectFailedException:
-                print("Waiting for ActiveMQ...")
-            except ConnectionRefusedError:
-                print("Waiting for ActiveMQ...")
+            else:
+                log("Waiting for ActiveMQ to come up")
+                tries = tries + 1
+                time.sleep(3)
 
-        print("Connected")
+        try:
+            conn = stomp.Connection12([host])
+            conn.set_listener('DAFModuleListener', self)
+            conn.connect()
+
+            i = 1
+            for topic in message_handlers:
+                log("Subscribing to: " + "/topic/" + topic)
+                conn.subscribe(destination="/topic/" + topic, ack="auto", id=i)
+                i = i + 1
+
+            if thread:
+                t = threading.Thread(target=loop)
+                t.start()
+            else: # just call the loop function in blocking mode
+                loop()
+
+        except stomp.exception.ConnectFailedException:
+            _logger.error("Error connecting to ActiveMQ")
+        except ConnectionRefusedError:
+            _logger.error("Error connecting to ActiveMQ")
+
+        log("Connected")
 
         # put stderr back
         sys.stderr = old_stderr
-
-        if thread:
-            t = threading.Thread(target=loop)
-            t.start()
-        else: # just call the loop function in blocking mode
-            loop()

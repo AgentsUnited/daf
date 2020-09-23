@@ -12,7 +12,7 @@
       "[r8] rejectedTooHigh(X) -> ~set_{{currentGoal}}Goal(X)",
       "[r9] rejectedTooLow(X) -> ~set_{{currentGoal}}Goal(X)",
       "[r10] currentGoal(shortTerm) -> ~set_longtermGoal(X)",
-      "[r11] currentGoal(shortTerm), agreedlongTermGoal(X) => suggested([X*0.4])"
+      "[r11] currentGoal(shortTerm), agreedLongTermGoal(X) => suggested([X*0.4])"
     ],
     "rulePreferences": [
       "[r1] < [r4]",

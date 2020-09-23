@@ -1,4 +1,6 @@
+import os
 import daf
+from daf import mongo
 import dialogue
 import user
 from .moves import Moves
@@ -36,6 +38,30 @@ class Request:
         return data
 
     @daf.command_handler("interaction", forward_topic=forward)
+    def handle_interaction(self, command, data):
+        """
+        Command handler for interactions; mostly sends on to DGEP
+        but if in test mode then the "vars" field might be present, which
+        we need to strip off and handle
+        """
+        if os.getenv("testvars","False") == "True":
+            col = mongo.get_column("test_variables")
+            for var_name, spec in data.get("vars", {}).items():
+                value = spec.get("value","")
+                result = col.find_one({"name": var_name}, {"_id":False})
+                if result:
+                    if spec.get("append",False) == True:
+                        current_value = result["value"]
+                        if type(current_value) is list:
+                            value = current_value + [value]
+                        else:
+                            value = [current_value, value]
+
+                record = {"name": var_name, "value": value}
+                col.update_one(record, {"upsert":True})
+
+        return data # sends data to DGEP
+
     @daf.command_handler("draftinteraction", forward_topic=forward)
     @daf.command_handler("moves", forward_topic=forward)
     @daf.command_handler("commit", forward_topic=forward)
@@ -44,5 +70,4 @@ class Request:
         """
         Default handler for requests that don't need the attention of the UG
         """
-        print(data)
         return data

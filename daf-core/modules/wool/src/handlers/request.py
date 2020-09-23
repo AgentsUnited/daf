@@ -87,7 +87,22 @@ class WoolRequestHandler:
                     "terminal_moves": []
                 }
             }
-            concrete_topic = self.get_topic(topic, participants)
+
+            values = []
+
+            for params in data.get("utteranceParams", []):
+                if params.get("participant","").lower() == agent:
+                    values = params.get("parameters",{}).get("content_mandatory_values",[])
+                    break
+
+            # concrete_topic = self.get_topic(topic, participants)
+
+            concrete_topic = self.get_potential_dialogues(agent, topic, values)
+
+            if len(concrete_topic) == 0:
+                return {}
+            else:
+                concrete_topic = concrete_topic[0]
 
             if concrete_topic is None:
                 return {}
@@ -319,3 +334,58 @@ class WoolRequestHandler:
                 to_return["replyID"] = reply_id
 
         return to_return
+
+
+    def get_potential_dialogues(self, speaker, topic, values):
+        """
+        Attempts to match a concrete WOOL script to the speaker, topic
+        and the "utteranceParams" (values)
+
+        :param speaker the current speaker
+        :param topic the current topic
+        :param values list of values promoted or demoted
+        :return the potential dialogue(s)
+        :rtype list
+        """
+
+        def is_int(string):
+            try:
+                int(string)
+                return True
+            except:
+                return False
+
+        dialogues = ["carlos-social-introduction", "olivia-social-introduction", "emma-social-introduction", "olivia-coaching-goalsetting-1", "olivia-coaching-sensors-weight", "olivia-coaching-feedback-weight", "olivia-coaching-feedback-steps"]
+
+        scores = {}
+
+        highest = 0
+
+        for dialogue in dialogues:
+            scores[dialogue] = 0
+            words = dialogue.split("-")
+
+            new_words = []
+
+            for i in range(len(words)):
+                if is_int(words[i])and len(new_words) > 0:
+                    new_words[len(new_words)-1] = new_words[len(new_words)-1] + words[i]
+                else:
+                    new_words.append(words[i])
+
+            words = new_words
+
+            if speaker not in words or topic not in words:
+                scores[dialogue] = -1
+                continue
+            for word in words:
+                if word + "+" in values:
+                    scores[dialogue] = scores[dialogue] + 1
+                elif word + "-" in values:
+                    scores[dialogue] = scores[dialogue] - 1
+
+        for dialogue, score in scores.items():
+            if score > highest:
+                highest = score
+
+        return [d for d in scores if scores[d] == highest]

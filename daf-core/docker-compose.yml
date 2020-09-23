@@ -54,3 +54,8 @@ volumes:
   mongo-volume:
    external: false
    driver: local
+
+# networks:
+#   default:
+#     external:
+#       name: daf-network

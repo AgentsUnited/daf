@@ -34,8 +34,7 @@ class Moves:
                 move_id = move["moveID"].lower()
 
                 descriptors = self.get_descriptors(move_id, dialogue_id)
-                print("Descriptors")
-                print(descriptors)
+
                 if descriptors is not None:
                     if self.move_requires_content(move):
                         if "content" in descriptors:
@@ -192,14 +191,11 @@ class Moves:
                 if ":" in property:
                     parts = property.split(":")
 
-                    print("PARTS: " + str(parts))
-
                     result = False
 
                     if parts[0] in handlers:
                         result = handlers[parts[0]](parts[1], previous_moves)
                     elif parts[0][:2] == "{{":
-                        print("FOUND VARIABLE!!")
                         v = variable_manager.insert_values(auth_token, parts[0])
                         if v == parts[1]:
                             result = True
