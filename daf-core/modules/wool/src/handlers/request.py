@@ -167,7 +167,7 @@ class WoolRequestHandler:
                         reply = {}
                         text = []
 
-                        for segment in reply["statement"].get("segments",[]):
+                        for segment in reply.get("statement",{}).get("segments",[]):
                             type = segment.get("segmentType","").lower()
                             if type == "input":
                                 reply["p"] = "$" + str(segment.get("variableName","none"))
