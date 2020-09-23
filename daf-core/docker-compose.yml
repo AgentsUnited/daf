@@ -49,6 +49,8 @@ services:
   ports:
   - "27017:27017"
   container_name: mongodb
+  logging:
+      driver: "none"
 
 volumes:
   mongo-volume:
