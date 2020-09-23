@@ -71,10 +71,10 @@ def insert_values(auth_token, input):
 
     if matches:
         for m in matches:
-            daf.log("Got modifier: " + m[0])
+            daf.log("Got modifier: " + str(m[0]))
             variable = m[1].strip()
             value = get_value(auth_token, variable)
-            daf.log("Variable_manager got value: " + value)
+            daf.log("Variable_manager got value: " + str(value))
             if value is not None:
                 if m[0].strip() == "u:":
                     value = value[0].upper() + value[1:]
