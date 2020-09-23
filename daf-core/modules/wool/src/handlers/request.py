@@ -348,7 +348,7 @@ class WoolRequestHandler:
         :rtype list
         """
 
-        if topic == "gatherinformation":
+        if topic == "gatherinformation" and speaker == "olivia":
             topic = "sensors"
 
         def is_int(string):
@@ -358,7 +358,7 @@ class WoolRequestHandler:
             except:
                 return False
 
-        dialogues = ["carlos-social-introduction", "olivia-social-introduction", "emma-social-introduction", "olivia-coaching-goalsetting-1", "olivia-coaching-sensors-weight", "olivia-coaching-feedback-weight", "olivia-coaching-feedback-steps"]
+        dialogues = ["carlos-social-introduction", "olivia-social-introduction", "emma-social-introduction", "olivia-coaching-goalsetting-1", "olivia-coaching-sensors-weight", "olivia-coaching-feedback-weight", "olivia-coaching-feedback-steps", "helen-coaching-gatherinformation-caas","carlos-coaching-gatherinformation-caas", "emma-coaching-gatherinformation-caas", "emma-coaching-feedback-caas", "rasmus-coaching-weekly-3-introduction"]
 
         scores = {}
 
