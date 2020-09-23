@@ -93,6 +93,7 @@ class WoolRequestHandler:
             for params in data.get("utteranceParams", []):
                 if params.get("participant","").lower() == agent:
                     values = params.get("parameters",{}).get("content_mandatory_values",[])
+                    values.extend(params.get("parameters",{}).get("content_avoid_values",[]))
                     break
 
             # concrete_topic = self.get_topic(topic, participants)
