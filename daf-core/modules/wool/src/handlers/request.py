@@ -174,7 +174,7 @@ class WoolRequestHandler:
                             elif type == "text":
                                 text.append(segment.get("text"))
 
-                        move = {"moveID": str(reply["replyId"]), "target":"", "reply": daf_reply, "opener": " ".join(text)}
+                        move = {"moveID": str(reply["replyId"]), "target":"", "reply": daf_reply, "opener": " ".join(text), "vars":{}}
                         self.dialogue["dialogueData"]["moveData"]["moves"][user].append(move)
                 else:
                     response = self.progress_dialogue(str(dialogue_data["replyID"]))
