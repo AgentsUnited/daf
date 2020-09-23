@@ -348,6 +348,9 @@ class WoolRequestHandler:
         :rtype list
         """
 
+        if topic == "gatherinformation":
+            topic = "sensors"
+
         def is_int(string):
             try:
                 int(string)
