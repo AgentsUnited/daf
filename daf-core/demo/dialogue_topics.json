@@ -18,5 +18,9 @@
   {
     "topic": "gatherinformation",
     "platform": "WOOL"
+  },
+  {
+    "topic": "feedback",
+    "platform": "WOOL"
   }
 ]
