@@ -363,6 +363,9 @@ class WoolRequestHandler:
         if topic == "gatherinformation" and speaker == "olivia":
             topic = "sensors"
 
+        if topic == "healtheducation" and speaker == "rasmus":
+            topic = "weekly3"
+
         def is_int(string):
             try:
                 int(string)

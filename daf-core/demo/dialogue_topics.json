@@ -22,5 +22,9 @@
   {
     "topic": "feedback",
     "platform": "WOOL"
+  },
+  {
+    "topic": "healtheducation",
+    "platform": "WOOL"
   }
 ]
