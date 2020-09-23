@@ -97,7 +97,7 @@
     ],
     "goal_accepted(X)": [
       {
-        "text": "That is great! So, we are working towards $X steps per day on the long run.",
+        "text": "That is great! So, we are working towards $X steps per day in the {{currentGoal}}.",
         "properties": []
       }
     ],
