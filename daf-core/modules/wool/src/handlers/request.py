@@ -163,7 +163,18 @@ class WoolRequestHandler:
                     self.dialogue["dialogueData"]["moveData"]["moves"][user] = []
 
                     for reply in dialogue_data["replies"]:
-                        move = {"moveID": str(reply["replyId"]), "target":"", "reply":{}, "opener": " ".join([s["text"] for s in reply["statement"]["segments"]])}
+
+                        reply = {}
+                        text = []
+
+                        for segment in reply["statement"].get("segments",[]):
+                            type = segment.get("segmentType","").lower()
+                            if type == "input":
+                                reply["p"] = "$" + str(segment.get("variableName","none"))
+                            elif type == "text":
+                                text.append(segment.get("text"))
+
+                        move = {"moveID": str(reply["replyId"]), "target":"", "reply":reply, "opener": " ".join(text)}
                         self.dialogue["dialogueData"]["moveData"]["moves"][user].append(move)
                 else:
                     response = self.progress_dialogue(str(dialogue_data["replyID"]))
