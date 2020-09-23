@@ -5,7 +5,7 @@ System{GoalSetting{
 	roles{Person,Agent}
 	players{min:2, max:3}
 	player{id:AgentOne, roles{Person,Agent}, max:1, min:1}
-	player{id:AgentTwo, roles{Person, Aget}, max:1, min:1}
+	player{id:AgentTwo, roles{Person, Aget}, max:1, min:0}
 	player{id:User, roles{Person,Agent}, max:1, min:1}
 
 	backtrack{on}
