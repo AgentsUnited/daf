@@ -1,4 +1,4 @@
-FROM phusion/baseimage:latest
+FROM phusion/baseimage:latest-amd64
 MAINTAINER m.snaith@dundee.ac.uk
 
 # Get the necessary binaries
