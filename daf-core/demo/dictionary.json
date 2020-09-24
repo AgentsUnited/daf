@@ -111,20 +111,20 @@
     ],
     "end": [
       {
-        "text": "Yes, that's true, <<lastspeaker>>. Now our next step is to set a smaller and achievable short-term goal together, so we can slowly work up to to your final goal!",
+        "text": "Yes, that's true, <<lastspeaker>>. Now our next step is to set a smaller and achievable short-term goal together, so we can slowly work up to your final goal!",
         "properties": [
           "lastmove:interject"
         ]
       },
       {
-        "text": "Now our next step is to set a smaller and achievable short-term goal together, so we can slowly work up to to your final goal!",
+        "text": "Now our next step is to set a smaller and achievable short-term goal together, so we can slowly work up to your final goal!",
         "properties": [
           "{{currentGoal}}:longTerm",
           "lastmove:!interject"
         ]
       },
       {
-        "text": "Now that we have set a smaller and achievable short-term goal together, we can take one small step to slowly work up to to your final goal!",
+        "text": "Now that we have set a smaller and achievable short-term goal together, we can take one small step to slowly work up to your final goal!",
         "properties": [
           "{{currentGoal}}:shortTerm"
         ]
