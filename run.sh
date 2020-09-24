@@ -4,9 +4,17 @@
 
 function cleanup(){
   docker-compose -f docker-compose.yml down --remove-orphans
+  rm daf.lock
 }
 
 trap cleanup TERM INT
+
+LOCK="daf.lock"
+
+if [ -f "$LOCK" ]; then
+    echo "DAF is already running"
+    exit 1
+fi
 
 opts=()
 docker_opts=()
@@ -18,11 +26,7 @@ while [ $# -gt 0 ]; do
     command=$(echo $1 | cut -c3-)
     case $command in
       demo)
-        opts+=("demo=True"); opts+=("mongo=agents_united_demo") ;;
-      testvars)
-        opts+=("testvars=True");;
-      activemq)
-        shift; opts+=("activemq=$1") ;;
+        opts+=("demo=True") ;;
     esac
   else
     test=$(echo $1 | cut -c1)
@@ -43,6 +47,8 @@ for i in "${opts[@]}"
 do
 	buildArgs="$buildArgs --build-arg $i"
 done
+
+echo "$buildArgs" > daf.lock
 
 # build the docker containers
 docker-compose -f docker-compose.yml build --no-cache $buildArgs
