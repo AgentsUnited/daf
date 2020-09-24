@@ -10,7 +10,7 @@ services:
 
  #controller to map external to internal amq topics
  controller:
-   build: ./modules/daf-controller2
+   build: ./modules/daf-controller
    container_name: daf_controller
    env_file:
    - daf-config.env
@@ -31,7 +31,7 @@ services:
 
  #filstantiator
  utterance_generator:
-  build: ./modules/utterance_generator2
+  build: ./modules/utterance_generator
   container_name: utterance_generator
   env_file:
   - daf-config.env
@@ -56,8 +56,3 @@ volumes:
   mongo-volume:
    external: false
    driver: local
-
-# networks:
-#   default:
-#     external:
-#       name: daf-network

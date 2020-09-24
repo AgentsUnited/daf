@@ -2,7 +2,7 @@ import daf
 from daf import mongo
 
 # protected mongodb collections
-_protected = ["dialogues", "dialogue_topics"]
+_protected = ["dialogues"]
 
 @daf.message_handler("DGEP/content")
 class ContentHandler:
