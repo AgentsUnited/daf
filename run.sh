@@ -3,18 +3,8 @@
 # USAGE: ./run.sh --demo --activemq 127.0.0.1
 
 function cleanup(){
-#  echo "down" > daf_fifo
   docker-compose -f docker-compose.yml down --remove-orphans
-  #docker network rm daf-network
 }
-
-# function restart(){
-#   mkfifo daf_fifo
-#   cat daf_fifo
-#   rm daf_fifo
-#   restart &
-#   docker-compose logs -f
-# }
 
 trap cleanup TERM INT
 
@@ -54,18 +44,7 @@ do
 	buildArgs="$buildArgs --build-arg $i"
 done
 
-#create the docker network
-# docker network create -d bridge daf-network
-
-# bring up activemq
-# docker run --rm --name activemq-external -p 8161:8161 --network="daf-network" webcenter/activemq:latest &
-
-# restart &
-
 # build the docker containers
 docker-compose -f docker-compose.yml build --no-cache $buildArgs
 docker-compose -f docker-compose.yml up -d --remove-orphans
 docker-compose logs -f
-
-# keep-alive even when daf is restarted
-# wait
