@@ -2,7 +2,7 @@ FROM docker/compose
 
 ADD . /daf
 WORKDIR /daf
-RUN mv demo modules/daf-controller2/
+RUN mv demo modules/daf-controller/
 
 ARG demo=False
 ARG activemq=activemq-external

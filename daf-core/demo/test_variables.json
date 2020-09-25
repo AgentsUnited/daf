@@ -1,0 +1,14 @@
+[
+  {
+    "name": "currentGoal",
+    "value": "longTerm"
+  },
+  {
+    "name": "userAge",
+    "value": 67
+  },
+  {
+    "name": "paCurrentGoalType",
+    "value": "steps"
+  }
+]

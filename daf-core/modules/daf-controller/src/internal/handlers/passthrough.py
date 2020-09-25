@@ -16,7 +16,7 @@ class Passthrough:
             forward = passthru.get(self.destination, None)
 
             if forward is not None:
-                external.send_message(forward, {"cmd":command,"params":data})
+                external.send_message(forward, {"cmd":command,"params":data}, self.headers)
 
 
 # we also need to listen to response topics for passthrough messages

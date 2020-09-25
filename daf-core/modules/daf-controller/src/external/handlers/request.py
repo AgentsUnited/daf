@@ -2,7 +2,7 @@ import daf
 from daf import mongo
 import activemq as internal
 
-@daf.message_handler("DGEP/requests", respond=False)
+@daf.message_handler("DGEP/requests", "DGEP/response")
 class DAFRequestHandler:
 
     def __init__(self):
@@ -13,35 +13,49 @@ class DAFRequestHandler:
         """
         Handles a request for a new dialogue
         """
-        if "topic" in data and "username" in data:
-            topic = data["topic"].lower()
-            username = data["username"]
+        topic = data.get("topic")
+        username = data.get("username")
 
-            col = mongo.get_column("dialogue_topics")
-            result = col.find_one({"topic": topic})
 
-            if result:
-                platform = result["platform"].upper()
-                destination = platform + "/requests"
+        if topic is None:
+            return {"error":"Topic not specified"}
+        elif username is None:
+            return {"error":"Username not specified"}
+        else:
 
-                dialogueID = self.new_dialogue(platform, topic, username)
+            col = mongo.get_column("users")
+            result = col.find_one({"username": username})
 
-                if dialogueID is not None:
-                    data["dialogueID"] = dialogueID
+            if not result:
+                return {"error":"User is not authenticated"}
+            else:
+                col = mongo.get_column("dialogue_topics")
+                result = col.find_one({"topic": topic})
 
-                    if "participants" in data and platform == "UG":
-                        new_participants = []
-                        for p in data.get("participants"):
-                            if p["player"] == "Agent" and p["name"] == "Olivia":
-                                p["player"] = "AgentOne"
-                            elif p["player"] == "Agent" and p["name"] == "Emma":
-                                p["player"] = "AgentTwo"
+                if result:
+                    platform = result["platform"].upper()
+                    destination = platform + "/requests"
 
-                            new_participants.append(p)
+                    dialogueID = self.new_dialogue(platform, topic, username)
 
-                        data["participants"] = new_participants
+                    if dialogueID is not None:
+                        data["dialogueID"] = dialogueID
 
-                    internal.send_message(destination, {"cmd": command, "params": data})
+                        if "participants" in data and platform == "UG":
+                            new_participants = []
+                            for p in data.get("participants"):
+                                if p["player"] == "Agent" and p["name"] == "Olivia":
+                                    p["player"] = "AgentOne"
+                                elif p["player"] == "Agent" and p["name"] == "Emma":
+                                    p["player"] = "AgentTwo"
+
+                                new_participants.append(p)
+
+                            data["participants"] = new_participants
+
+                        internal.send_message(destination, {"cmd": command, "params": data}, self.headers)
+                else:
+                    return {"error":"Topic not found"}
 
     @daf.command_handler("moves")
     @daf.command_handler("interaction")
@@ -56,12 +70,12 @@ class DAFRequestHandler:
             platform = self.get_platform(dialogueID)
             if platform is not None:
                 destination = platform + "/requests"
-                internal.send_message(destination, {"cmd": command, "params": data})
+                internal.send_message(destination, {"cmd": command, "params": data}, self.headers)
         else:
             platform = data.get("platform", None)
             if platform is not None:
                 destination = platform + "/requests"
-                internal.send_message(destination, {"cmd": command, "params": data})
+                internal.send_message(destination, {"cmd": command, "params": data}, self.headers)
 
 
 

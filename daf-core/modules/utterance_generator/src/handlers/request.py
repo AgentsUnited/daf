@@ -57,8 +57,9 @@ class Request:
                         else:
                             value = [current_value, value]
 
-                record = {"name": var_name, "value": value}
-                col.update_one(record, {"upsert":True})
+                query = {"name": var_name}
+                update = {"$set":{"value": value}}
+                col.update_one(query, update, upsert=True)
 
         return data # sends data to DGEP
 

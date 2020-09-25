@@ -7,7 +7,12 @@ import daf
 
 host = None
 
-def send_message(topic, message):
+def send_message(topic, message, headers=None):
+
+    if not headers:
+        headers = {}
+
+    headers["ttl"] = 30000
 
     if type(message) is dict:
         message = json.dumps(message)
@@ -16,5 +21,5 @@ def send_message(topic, message):
 
     conn = stomp.Connection12([host], auto_content_length=False)
     conn.connect('admin', 'admin', wait=True)
-    conn.send(destination='/topic/' + topic, body=message, headers = {"ttl": 30000})
+    conn.send(destination='/topic/' + topic, body=message, headers=headers)
     conn.disconnect()

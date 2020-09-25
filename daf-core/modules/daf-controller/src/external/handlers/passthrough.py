@@ -17,7 +17,7 @@ class Passthrough:
             forward = passthru.get(self.destination, None)
 
             if forward is not None:
-                internal.send_message(forward, {"cmd":command,"params":data})
+                internal.send_message(forward, {"cmd":command,"params":data}, self.headers)
 
 """
 Passthrough class can't be annotated because the topics its listens on depend

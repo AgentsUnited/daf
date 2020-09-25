@@ -54,9 +54,9 @@ class DGEPListener(stomp.ConnectionListener):
         else:
             message = dgep_endpoint.invoke(self.dgep, data["cmd"], data["params"])
             # self.send_message(json.dumps(message), data["cmd"])
-            self.send_message(json.dumps({"cmd": data["cmd"], "response": message}), data["cmd"])
+            self.send_message(json.dumps({"cmd": data["cmd"], "response": message}), headers, data["cmd"])
 
-    def send_message(self, message, cmd):
+    def send_message(self, message, headers, cmd):
         """ Send a message to ActiveMQ
             DGEP will only send a message back, i.e. it will never initiate;
             thus, to ensure the message is sent to the correct topic, the command
@@ -76,10 +76,12 @@ class DGEPListener(stomp.ConnectionListener):
         print("Sending message:")
         print(message)
 
+        headers["ttl"] = 30000
+
         conn = stomp.Connection12([(self.amq_host, 61613)], auto_content_length=False)
         conn.start()
         conn.connect('admin','admin', wait=True)
-        conn.send(destination='/topic/DGEP/' + topic, body=message, headers = {"ttl": 30000})
+        conn.send(destination='/topic/DGEP/' + topic, body=message, headers=headers)
 
     def disconnect(self):
         #print("Disconnecting from ActiveMQ")

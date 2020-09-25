@@ -7,6 +7,7 @@ import os
 import threading
 import logging
 import socket
+import uuid
 
 amq_host = None
 
@@ -122,6 +123,7 @@ class Module(stomp.ConnectionListener):
 
                     handler = handler["handler"]()
                     handler.destination = destination
+                    handler.headers = headers
 
                     handler_class = handler.__class__.__name__
 
@@ -153,33 +155,24 @@ class Module(stomp.ConnectionListener):
                                 response = {"cmd": command, keyword: response}
 
                             response = json.dumps(response)
-                            self.send_message(message=response, topic=response_topic)
-
-                        # if handler_class in command_handlers:
-                        #
-                        #     if command in command_handlers[handler_class]:
-                        #         command_handler = command_handlers[handler_class][command]
-                        #         response = command_handler["fn"](handler, command, input.get("params",input.get("response")))
-                        #
-                        #         if command_handler["forward_topic"] is not None:
-                        #             response_topic = command_handler["forward_topic"]
-                        #             keyword = "params"
-                        #     else:
-                        #         if handler_class in default_command_handlers:
-                        #             response = default_command_handlers[handler_class](handler, command, input.get("params",input.get("response")))
-                        #
-                        #     if response is not None and response_topic is not None:
-                        #         response = json.dumps({"cmd": command, keyword: response})
-                        #         self.send_message(response, response_topic)
+                            self.send_message(message=response, headers=headers, topic=response_topic)
         except:
             _logger.exception("Error")
             traceback.print_exc()
 
-    def send_message(self, message, topic):
+    def send_message(self, message, headers, topic):
         log("Sending message: {} to {}".format(message,topic))
+
+        if "request-id" not in headers:
+            headers["request-id"] = uuid.uuid4()
+
+        log("RequestID: {}".format(headers["request-id"]))
+
+        headers["ttl"] = 30000
+
         conn = stomp.Connection12([self.amq_host], auto_content_length=False)
         conn.connect('admin', 'admin', wait=True)
-        conn.send(destination='/topic/' + topic, body=message, headers = {"ttl": 30000})
+        conn.send(destination='/topic/' + topic, body=message, headers=headers)
         conn.disconnect()
 
     def run(self, name="DAF-module", host=('activemq-internal', 61613), thread=False):

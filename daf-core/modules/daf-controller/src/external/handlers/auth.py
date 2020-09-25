@@ -17,6 +17,6 @@ class DAFAuthHandler:
     def logout(self, command, data):
         username = data.get("username")
 
-        if username is not NOne:
+        if username is not None:
             col = mongo.get_column("users")
             col.delete_one({"username": username})

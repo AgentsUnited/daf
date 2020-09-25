@@ -4,6 +4,7 @@
 
 function cleanup(){
   docker-compose -f docker-compose.yml down --remove-orphans
+  docker network rm daf-network
   rm daf.lock
 }
 
@@ -27,6 +28,8 @@ while [ $# -gt 0 ]; do
     case $command in
       demo)
         opts+=("demo=True") ;;
+      testvars)
+        opts+=("testvars=True") ;;
     esac
   else
     test=$(echo $1 | cut -c1)
@@ -49,6 +52,8 @@ do
 done
 
 echo "$buildArgs" > daf.lock
+
+docker network create -d bridge daf-network
 
 # build the docker containers
 docker-compose -f docker-compose.yml build --no-cache $buildArgs

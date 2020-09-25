@@ -10,10 +10,12 @@ class ResponseHandler:
     @daf.command_handler(default=True)
     def handle_new(self, command, data):
         destination = "DGEP/response"
-        external.send_message(destination, data)
+        print("Sending message with headers {}" + str(self.headers))
+        external.send_message(destination, data, self.headers)
 
     @daf.command_handler("moves")
     @daf.command_handler("interaction")
     def handle_returned_moves(self, command, data):
         destination = "DGEP/moves"
-        external.send_message(destination, data)
+        print("Sending message with headers {}" + str(self.headers))
+        external.send_message(destination, data, self.headers)
