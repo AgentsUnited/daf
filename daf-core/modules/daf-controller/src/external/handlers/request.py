@@ -13,7 +13,7 @@ class DAFRequestHandler:
         """
         Handles a request for a new dialogue
         """
-        topic = data.get("topic")
+        topic = data.get("topic","").lower()
         username = data.get("username")
 
 
