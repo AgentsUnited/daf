@@ -57,7 +57,7 @@ volumes:
    external: false
    driver: local
 
-networks:
-  default:
-    external:
-      name: daf-network
+# networks:
+#   default:
+#     external:
+#       name: daf-network
