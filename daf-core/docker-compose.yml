@@ -7,7 +7,8 @@ services:
  activemq_internal:
   image: webcenter/activemq:latest
   container_name: activemq-internal
-
+  ports:
+  - "8162:8161"
  #controller to map external to internal amq topics
  controller:
    build: ./modules/daf-controller

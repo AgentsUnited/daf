@@ -17,7 +17,7 @@ services:
   build: ./daf-core
   container_name: daf_core
   volumes:
-  - //var/run/docker.sock:/var/run/docker.sock
+  - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
   default:
