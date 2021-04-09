@@ -1,5 +1,8 @@
 {
   "DGEP/protocols": {
     "forward": "DGEP/protocols"
+  },
+  "DGEP/protocol": {
+    "forward": "DGEP/protocol"
   }
 }

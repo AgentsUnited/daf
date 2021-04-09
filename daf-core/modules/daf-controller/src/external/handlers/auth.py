@@ -9,6 +9,9 @@ class DAFAuthHandler:
         username = data.get("username", None)
         authToken = data.get("authToken", None)
 
+        print(username)
+        print(authToken)
+
         if username is not None and authToken is not None:
             col = mongo.get_column("users")
             col.insert_one({"username": username, "authToken": authToken})

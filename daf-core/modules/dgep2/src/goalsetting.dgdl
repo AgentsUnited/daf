@@ -1,0 +1,32 @@
+game(id:GoalSetting){
+
+    /*
+    Description: a test game
+    */
+
+    roles(Role, Role2)
+    participants(min:2, max:undefined)
+    player(id:Test, min:2, max:2)
+    player(id:Test2, roles:{TestRole,TestRole2})
+
+    store(id:TestStore, owner:Test, structure:set, visibility:public)
+
+    turntaking(strict)
+    backtracking(on)
+
+    extURI(id:MyTestURI, uri:"http://cicero.arg.tech/~mark/dgep/test.php")
+
+    rule(id:TestRule, scope:initial){
+        assign(Test, speaker);
+        move(add, next, TestMove, $Test2, {p}, Test);
+        store(add, {"test"}, TestStore);
+    }
+
+    interaction(id:TestMove, addressee:TestUser, content:{p}, opener:"Test, $p"){
+
+        if(uriTest(MyTestURI)){
+          assign(Target, speaker);
+          move(add, next, TestMove, $Test2, {p}, Target);
+        }
+    }
+}

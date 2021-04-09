@@ -9,7 +9,7 @@ ARG activemq=activemq-external
 ARG testvars=False
 
 # build the run file
-RUN echo -e "#!/bin/sh\n\ndocker build -t daf:latest modules/daf-module/\n\n docker-compose up --build" >> run-daf.sh && \
+RUN echo -e "#!/bin/sh\n\ndocker build -t daf:latest modules/daf-module/\n\n docker-compose build --no-cache \n\n docker-compose up" >> run-daf.sh && \
     chmod 777 run-daf.sh
 
 RUN echo -e "DEMO=$demo\nactivemq=$activemq\ntestvars=$testvars" >> daf-config.env
