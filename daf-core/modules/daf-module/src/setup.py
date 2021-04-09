@@ -13,7 +13,7 @@ setuptools.setup(
      url="https://www.agents-united.org",
      packages=setuptools.find_packages(),
      install_requires = [
-    'stomp.py',
+    'stomp.py==4.1.24',
     'pymongo'
      ],
      classifiers=[
