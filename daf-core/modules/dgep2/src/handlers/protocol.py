@@ -22,10 +22,9 @@ class Protocol:
         if(isinstance(game, list)):
             return {"response":"error","errors": game}
         else:
-            gameID = game.gameID
+            gameID = game.gameID.lower()
 
             col = mongo.get_column("dgdl_files")
-            col.update({"gameID": gameID}, {"dgdl": data}, upsert=True)
+            col.update({"gameID": gameID}, {"$set": {"dgdl": data, "gameID": gameID}}, upsert=True)
 
-            print("Game ID: " + game.gameID)
             return {"response":"OK"}

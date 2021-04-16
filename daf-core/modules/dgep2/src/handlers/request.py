@@ -11,16 +11,11 @@ class DGEPRequestHandler:
     Handles messages sent to the DGEP/requests topic
     """
 
-    def __init__(self):
-        pass
-
     @daf.command_handler("new")
     def handle_new(self, command, data):
         """
         Handles "new" commands by creating a new dialogue
         """
-
-        print("Received message")
 
         response = {}
 
@@ -28,22 +23,25 @@ class DGEPRequestHandler:
             protocol = data["topic"].lower()
             dialogueID = data.get("dialogueID", None)
 
-            f = open("/app/goalsetting.dgdl");
+            dgdl = self.load_dgdl(protocol)
 
-            dgdl = f.read();
+            if dgdl is not None:
+                #TODO: yarn translation
+                dgep = DGEP()
+                dialogue = dgep.new_dialogue(dgdl, **data)
 
-            #TODO: yarn translation
-            dgep = DGEP()
-            dialogue = dgep.new_dialogue(dgdl, **data)
+                # save in mongodb
+                dialogueID = self.save_dialogue(dialogue, dialogueID)
 
-            # save in mongodb
-            dialogueID = self.save_dialogue(dialogue, dialogueID)
+                moves = dgep.get_available_moves()
 
-            moves = dgep.get_available_moves()
-
-            response["dialogueID"] = dialogueID
-            response["moves"] = moves
-            response["history"] = []
+                response["dialogueID"] = dialogueID
+                response["moves"] = moves
+                response["history"] = []
+            else:
+                response["error"] = "No DGDL specification exists for the given topic"
+        else:
+            response["error"] = "No topic provided"
 
         return response
 
@@ -63,6 +61,8 @@ class DGEPRequestHandler:
                 "moves": dialogue.get_available_moves(),
                 "history": dialogue.dialogue_history
             }
+        else:
+            response["error"] = "No dialogueID provided"
 
         return response
 
@@ -82,6 +82,8 @@ class DGEPRequestHandler:
             }
 
             self.save_dialogue(dialogue.save(), dialogueID)
+        else:
+            response["error"] = "No dialogueID and/or interactionID provided"
 
         return response
 
@@ -105,6 +107,8 @@ class DGEPRequestHandler:
             }
 
             self.save_dialogue(dialogue.save(), dialogueID, True)
+        else:
+            response["error"] = "No dialogueID and/or interactionID provided"
 
         return response
 
@@ -129,6 +133,8 @@ class DGEPRequestHandler:
                 }
 
                 self.save_dialogue(dialogue.save(), dialogueID)
+        else:
+            response["error"] = "No dialogueID and/or interactionID provided"
 
         return response
 
@@ -175,4 +181,23 @@ class DGEPRequestHandler:
             result = col.find_one({"dialogueID": dialogueID})
             return DGEP(result["dialogueData"][field])
         else:
+            return None
+
+
+    def load_dgdl(self, name):
+        """
+        Loads the DGDL specification with the given name from mongodb
+
+        :param name the name of the protocol
+        :rtype str containing the DGDL
+        """
+        name = name.lower()
+
+        col = mongo.get_column("dgdl_files")
+        result = col.find_one({"gameID": name})
+
+        if result:
+            return str(result["dgdl"])
+        else:
+            daf.log("Error loading DGDL: " + name)
             return None
