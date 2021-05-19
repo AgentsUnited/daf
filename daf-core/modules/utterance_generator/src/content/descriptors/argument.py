@@ -15,6 +15,8 @@ class Argument(ContentDescriptor):
 
         self.history = kwargs["history"]
 
+        self.content_object = kwargs.get("content_object",{})
+
         # if self.speaker is not None:
         #     col = mongo.get_column("dialogues")
         #     result = col.find_one({"dialogueID": self.dialogue_id})
@@ -73,6 +75,69 @@ class Argument(ContentDescriptor):
         theory = pyaspic.ArgumentationTheory(system, kb)
 
         return theory.evaluate()
+
+
+    def find_content2(self, query, existing_content=None):
+        to_return = []
+        auth_token = dialogue.get_auth_token(self.dialogue_id)
+
+        if existing_content is None:
+            existing_content = {}
+
+        vars_to_fill = []
+
+        if query is not None:
+            #if we have existing content, replace the variables in the query with the already assigned values
+            for key, value in existing_content.items():
+                if value[0] != "$":
+                    query = query.replace("${}".format(key), value)
+                else:
+                    # otherwise, we need to fill this var
+                    vars_to_fill.append(key)
+
+        # fill all WWS variables with their values
+        query = variable_manager.insert_values(auth_token, query)
+
+        '''
+        Determine the type of query:
+            if => is present, we're looking for support for a conclusion
+            otherwise, we're looking for a conclusion
+        '''
+        if "=>" in query:
+            content = []
+            elements = query.split("=>") #easiest way to separate the conclusion from the premises
+            conclusion = elements[1].strip()
+            premises = [p.strip() for p in elements[0].strip().split(",")]
+
+            if conclusion == "[?]":
+                pass #TODO: handle queries where we're looking for a conclusion - hard!
+            else:
+                # get all acceptable arguments with the provided conclusion
+                arguments = self.get_arguments_with_conclusion(conclusion, True)
+
+                support = [] # list to hold the supporting arguments for this conclusion
+
+                for label, arg in arguments.items():
+                    for sub_arg in arg.get("last_sub_arguments",[]):
+                        support.append(self.theory["arguments"][sub_arg]["conclusion"])
+
+                # we can only continue if there's enough supporting args to fill the vars
+                if len(support) == len(vars_to_fill):
+                    var_map = dict(zip(vars_to_fill, support))
+                    statements = []
+
+                    for s in support:
+                        spec = term.get_term_specification(s) # gets the spec for this arg
+                        for statement in self.content_object["statements"]:
+                            text = variable_manager.insert_values(auth_token, statement["text"])
+                            for i in range(0, len(spec[2])):
+                                text = text.replace("${}".format(str(i)), spec[2][i])
+
+                            statements.append({"text": text, "properties": statement["properties"]})
+
+
+
+        return to_return
 
 
     def find_content(self, query, existing_content=None):

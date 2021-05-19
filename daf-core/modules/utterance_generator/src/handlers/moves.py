@@ -21,6 +21,73 @@ class Moves:
             data["moves"] = self.instantiate_moves(dialogue_id, moves, history)
         return data
 
+
+    def instantiate_moves2(self, dialogueID, _moves, history):
+
+        instantiated_moves = {}
+
+        for speaker, moves in _moves.items():
+            instantiated_moves[speaker] = []
+
+            for move in moves:
+                moveID = move["moveID"].lower()
+
+                instantiator = self.get_instantiator(moveID, dialogueID)
+
+                if instantiator is not None:
+                    # does this move require content - and if so, can we source it?
+                    if self.move_requires_content(move):
+                        if "content" in instantiator:
+                            pass
+                    else:
+                        # we can just use the statements
+                        pass
+
+
+        return instantiated_moves
+
+    def get_instantiator(self, moveID, dialogueID):
+        """Gets the object from mongoDB that describes how this move
+            should be instantiated"""
+
+        topic = dialogue.get_topic(dialogueID)
+
+        col = mongo.get_column("content")
+        result = col.find_one({"protocol": topic})
+
+        if result is not None and moveID in result.get("moves", {}):
+            return result["moves"][moveID]
+        else:
+            return None
+
+
+    def get_content_sources(self, move, dialogueID):
+        """Attempts to get sources of content for the given move
+            in the given dialogue"""
+
+        topic = dialogue.get_topic(dialogue_id)
+        moveID = move["moveID"].lower()
+
+        to_return = []
+
+        col = mongo.get_column("content")
+        result = col.find_one({"protocol": topic})
+
+        if result is not None and moveID in result.get("moves",{}):
+            content_object = result["moves"][moveID]
+            # check if this move requires content
+            if self.move_requires_content(move) and "content" in content_object:
+                content = content_locator.find_content2(dialogueID, content_object, )
+                pass
+
+
+            for r in result:
+                if move_id in r["descriptors"]:
+                    return r["descriptors"][move_id]
+
+        return None
+
+
     def instantiate_moves(self, dialogue_id, _moves, history):
         """
         Find instantiations of the given moves, whether they require content
