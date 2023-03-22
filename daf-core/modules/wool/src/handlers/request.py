@@ -4,22 +4,25 @@ import requests
 import json
 from daf import mongo
 
-_topic_map = {
-    "introduction":{
-            "carlos": "carlos-social-introduction",
-            "olivia": "olivia-social-introduction",
-            "emma": "emma-social-introduction"
-            },
-    "goalsetting1":{
-            "olivia": "olivia-coaching-goalsetting-1"
-            },
-    "gatherinformation":{
-            "olivia": "olivia-coaching-sensors-weight"
-            },
-    "feedback":{
-            "olivia":  "olivia-coaching-feedback-weight"
-            }
-}
+# _topic_map = {
+#     "introduction":{
+#             "carlos": "carlos-social-introduction",
+#             "olivia": "olivia-social-introduction",
+#             "emma": "emma-social-introduction"
+#             },
+#     "goalsetting1":{
+#             "olivia": "olivia-coaching-goalsetting-1"
+#             },
+#     "gatherinformation":{
+#             "olivia": "olivia-coaching-sensors-weight"
+#             },
+#     "feedback":{
+#             "olivia":  "olivia-coaching-feedback-weight"
+#             }
+# }
+
+with open ('/app/topic-map.json') as topics_file:
+    _topic_map = json.load(topics_file)
 
 @daf.message_handler("WOOL/requests", "WOOL/response")
 class WoolRequestHandler:
