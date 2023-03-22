@@ -1,3 +1,4 @@
+import os
 import daf
 import requests
 import json
@@ -27,7 +28,8 @@ class WoolRequestHandler:
     """
 
     def __init__(self):
-        self.server = "https://servletstest.rrdweb.nl/wool/v1/dialogue/"
+        #self.server = "https://servletstest.rrdweb.nl/wool/v1/dialogue/"
+        self.server = os.getenv("WOOL_ENDPOINT") + "/wool/v1/dialogue/"
         self.actions = ["start-dialogue", "progress-dialogue", "cancel-dialogue"]
         self.dialogue = {}
 

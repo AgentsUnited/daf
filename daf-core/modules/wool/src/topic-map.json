@@ -1,0 +1,16 @@
+{
+    "introduction": {
+        "carlos": "carlos-social-introduction",
+        "olivia": "olivia-social-introduction",
+        "emma": "emma-social-introduction"
+    },
+    "goalsetting1": {
+        "olivia": "olivia-coaching-goalsetting-1"
+    },
+    "gatherinformation": {
+        "olivia": "olivia-coaching-sensors-weight"
+    },
+    "feedback": {
+        "olivia": "olivia-coaching-feedback-weight"
+    }
+}
